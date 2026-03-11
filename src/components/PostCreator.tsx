@@ -167,6 +167,9 @@ export default function PostCreator() {
                 </button>
               </div>
             )}
+            {selectedImage && (
+              <p className="text-[9px] text-green-500 mt-2 font-mono uppercase tracking-widest">Debug: Image Data Loaded ({Math.round(selectedImage.length/1024)} KB)</p>
+            )}
           </div>
         </div>
 

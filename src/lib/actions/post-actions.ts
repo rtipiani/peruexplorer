@@ -112,6 +112,9 @@ export async function getUserNotifications(userId: string) {
 
 export async function getPosts(locationFilter?: string, userId?: string) {
   try {
+    const dbUrl = process.env.DATABASE_URL || "NOT_SET";
+    console.log(`getPosts diagnostic: Using DB URL starting with: ${dbUrl.substring(0, 20)}...`);
+    
     // 1. Obtener IDs de campañas activas
     let promotedIds: string[] = [];
     try {
@@ -139,10 +142,10 @@ export async function getPosts(locationFilter?: string, userId?: string) {
         : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
     }
 
-    console.log(`getPosts: Found ${posts.length} posts in database.`);
+    console.log(`getPosts diagnostic: Query success. Found ${posts.length} posts.`);
 
     if (!posts || posts.length === 0) {
-      console.log('getPosts: No posts found in database.');
+      console.log('getPosts diagnostic: Zero posts returned from database.');
       return [];
     }
 
