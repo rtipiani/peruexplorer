@@ -26,15 +26,16 @@ export default function CommunityHub() {
     try {
       setLoading(true);
       setDebugInfo(null);
-      const data = await getPosts(locFilter, user?.id);
+      const result: any = await getPosts(locFilter, user?.id);
       
-      console.log(`Feed Debug: Received ${data?.length || 0} posts`);
-      if (Array.isArray(data)) {
-        setPosts(data);
-        if (data.length === 0) setDebugInfo("Query returned 0 posts");
+      console.log(`Feed Debug: Received data`, result);
+      if (result && Array.isArray(result.posts)) {
+        setPosts(result.posts);
+        const logMsg = `DB Total: ${result.totalInDb} | Feed: ${result.posts.length} | DB URL: ${result.dbPrefix}...`;
+        setDebugInfo(logMsg);
       } else {
-        console.error("Feed Debug: Data is not an array", data);
-        setDebugInfo("Error: Server action did not return an array");
+        console.error("Feed Debug: Data structure unknown", result);
+        setDebugInfo("Error: Unexpected data structure from server");
       }
     } catch (e: any) {
       console.error("Posts load error", e);

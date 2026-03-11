@@ -154,24 +154,27 @@ export default function PostCreator() {
               className="w-full bg-transparent border-none focus:ring-0 outline-none text-base font-medium text-white placeholder:text-white/20 resize-none tracking-tight leading-relaxed italic"
               rows={3}
             />
-
-            {/* Image Preview */}
-            {selectedImage && (
-              <div className="mt-4 relative group/img max-w-sm rounded-sm overflow-hidden border border-white/10">
-                <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-60 object-cover" />
-                <button 
-                  onClick={() => setSelectedImage(null)}
-                  className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-full transition-colors backdrop-blur-md"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-            {selectedImage && (
-              <p className="text-[9px] text-green-500 mt-2 font-mono uppercase tracking-widest">Debug: Image Data Loaded ({Math.round(selectedImage.length/1024)} KB)</p>
-            )}
           </div>
         </div>
+
+        {/* MOVED: Image Preview - Now outside the flex profile row for visibility */}
+        {selectedImage && (
+          <div className="mt-8 mb-8 p-6 bg-slate-900/40 border border-white/5 rounded-sm relative group/img max-w-xl mx-auto ring-1 ring-primary/20">
+            <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[450px] object-contain rounded-sm shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)]" />
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 p-2 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 z-30"
+            >
+              <X size={18} />
+            </button>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <p className="text-[10px] text-green-400 font-mono uppercase tracking-[0.2em] font-bold">
+                Diagnostics: Image Buffer Active ({Math.round(selectedImage.length/1024)} KB)
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-white/5 relative z-10 gap-6">
           <input 

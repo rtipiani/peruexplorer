@@ -113,8 +113,17 @@ export async function getUserNotifications(userId: string) {
 export async function getPosts(locationFilter?: string, userId?: string) {
   try {
     const dbUrl = process.env.DATABASE_URL || "NOT_SET";
-    console.log(`getPosts diagnostic: Using DB URL starting with: ${dbUrl.substring(0, 20)}...`);
+    const dbPrefix = dbUrl.substring(0, 25);
+    console.log(`getPosts diagnostic: Using DB URL starting with: ${dbPrefix}...`);
     
+    // 0. Conteo total (ignora filtros) para diagnóstico
+    let totalInDb = 0;
+    try {
+      totalInDb = await prisma.post.count();
+    } catch (e) {
+      console.error('Count check failed:', e);
+    }
+
     // 1. Obtener IDs de campañas activas
     let promotedIds: string[] = [];
     try {
@@ -168,7 +177,7 @@ export async function getPosts(locationFilter?: string, userId?: string) {
     }
 
     // 4. Procesar y marcar promocionados + liked
-    return posts.map(post => ({
+    const formattedPosts = posts.map(post => ({
       id: post.id,
       userId: post.userId,
       user_name: post.userName,
@@ -189,9 +198,16 @@ export async function getPosts(locationFilter?: string, userId?: string) {
       if (!a.isPromoted && b.isPromoted) return 1;
       return 0;
     });
+
+    return {
+      posts: formattedPosts,
+      totalInDb,
+      dbPrefix,
+      filterUsed: locationFilter || 'none'
+    };
   } catch (error) {
     console.error('CRITICAL: Error in getPosts:', error);
-    return [];
+    return { posts: [], error: 'CRITICAL_ACTION_ERROR', totalInDb: 0 };
   }
 }
 
