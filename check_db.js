@@ -8,11 +8,13 @@ async function main() {
     
     if (postCount > 0) {
       const posts = await prisma.post.findMany({
-        take: 5,
+        take: 1,
         orderBy: { createdAt: 'desc' }
       });
-      console.log('Recent post titles/contents:');
-      posts.forEach(p => console.log(`- [${p.id.substring(0,8)}] ${p.content?.substring(0,30)}... by ${p.userName}`));
+      console.log('--- FIRST POST KEYS ---');
+      console.log(Object.keys(posts[0]));
+      console.log('--- FULL FIRST POST DATA ---');
+      console.log(JSON.stringify(posts[0], null, 2));
     }
   } catch (e) {
     console.error('Error connecting to database:', e);

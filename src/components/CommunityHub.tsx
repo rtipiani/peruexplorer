@@ -20,14 +20,25 @@ export default function CommunityHub() {
 
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   
   const loadPosts = async (locFilter?: string) => {
     try {
       setLoading(true);
+      setDebugInfo(null);
       const data = await getPosts(locFilter, user?.id);
-      setPosts(data);
-    } catch (e) {
+      
+      console.log(`Feed Debug: Received ${data?.length || 0} posts`);
+      if (Array.isArray(data)) {
+        setPosts(data);
+        if (data.length === 0) setDebugInfo("Query returned 0 posts");
+      } else {
+        console.error("Feed Debug: Data is not an array", data);
+        setDebugInfo("Error: Server action did not return an array");
+      }
+    } catch (e: any) {
       console.error("Posts load error", e);
+      setDebugInfo(`Error loading: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -129,8 +140,21 @@ export default function CommunityHub() {
             );
           })
         ) : (
-          <div className="py-20 text-center text-slate-700 font-bold italic tracking-widest uppercase text-xs">
-            No hay expediciones registradas aún.
+          <div className="py-20 text-center space-y-4">
+            <div className="text-slate-700 font-bold italic tracking-widest uppercase text-xs">
+              No hay expediciones registradas aún.
+            </div>
+            {debugInfo && (
+              <div className="text-[10px] text-slate-500 font-mono">
+                Log: {debugInfo}
+              </div>
+            )}
+            <button 
+              onClick={() => loadPosts(locationParam || undefined)}
+              className="px-6 py-2 bg-white/5 border border-white/10 rounded-sm text-[10px] font-bold text-slate-400 hover:text-white transition-all uppercase tracking-widest"
+            >
+              Reintentar Conexión
+            </button>
           </div>
         )}
       </div>
