@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,7 +13,9 @@ export default function CommunityPage() {
   if (isSignedIn) {
     return (
       <MemberLayout>
-        <CommunityHub />
+        <Suspense fallback={<div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary animate-spin rounded-full" /></div>}>
+          <CommunityHub />
+        </Suspense>
       </MemberLayout>
     );
   }
@@ -20,7 +23,9 @@ export default function CommunityPage() {
   return (
     <main className="min-h-screen bg-white pt-48 pb-40 px-6">
       <Navbar />
-      <CommunityHub />
+      <Suspense fallback={<div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary animate-spin rounded-full" /></div>}>
+        <CommunityHub />
+      </Suspense>
       <Footer />
     </main>
   );
