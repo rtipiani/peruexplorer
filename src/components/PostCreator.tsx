@@ -154,6 +154,19 @@ export default function PostCreator() {
               className="w-full bg-transparent border-none focus:ring-0 outline-none text-base font-medium text-white placeholder:text-white/20 resize-none tracking-tight leading-relaxed italic"
               rows={3}
             />
+
+            {/* Image Preview */}
+            {selectedImage && (
+              <div className="mt-4 relative group/img max-w-sm rounded-sm overflow-hidden border border-white/10">
+                <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-60 object-cover" />
+                <button 
+                  onClick={() => setSelectedImage(null)}
+                  className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-full transition-colors backdrop-blur-md"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
