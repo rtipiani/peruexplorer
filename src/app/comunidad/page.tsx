@@ -21,11 +21,13 @@ export default function CommunityPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white pt-48 pb-40 px-6">
+    <main className="min-h-screen bg-black pt-32 pb-20">
       <Navbar />
-      <Suspense fallback={<div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary animate-spin rounded-full" /></div>}>
-        <CommunityHub />
-      </Suspense>
+      <div className="max-w-2xl mx-auto px-6">
+        <Suspense fallback={<div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary animate-spin rounded-full" /></div>}>
+          <CommunityHub />
+        </Suspense>
+      </div>
       <Footer />
     </main>
   );
