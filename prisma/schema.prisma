@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id           String     @id @default(uuid())
+  userId       String     @default("")
+  userName     String
+  userAvatar   String
+  location     String
+  content      String
+  imageUrl     String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  loves        Int        @default(0)
+  comments     Int        @default(0)
+  commentsList Comment[]
+  likes        PostLike[]
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  content    String
+  userId     String
+  userName   String
+  userAvatar String
+  createdAt  DateTime      @default(now())
+  postId     String
+  post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  likes      Int           @default(0)
+  likesList  CommentLike[]
+  parentId   String?
+  parent     Comment?      @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    Comment[]     @relation("CommentToComment")
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+  type          String
+  message       String
+  isRead        Boolean  @default(false)
+  triggerUserId String
+  postId        String?
+  createdAt     DateTime @default(now())
+}
+
+model BusinessProfile {
+  id                 String           @id @default(uuid())
+  userId             String           @unique
+  name               String
+  type               String
+  description        String
+  contactEmail       String
+  contactPhone       String
+  website            String?
+  logoUrl            String?
+  bannerUrl          String?
+  isVerified         Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  accountType        String           @default("PERSON")
+  taxId              String?
+  verificationDocUrl String?
+  balance            Float            @default(0.0)
+  campaigns          AdCampaign[]
+  payments           PaymentRequest[]
+}
+
+model PaymentRequest {
+  id         String          @id @default(uuid())
+  amount     Float
+  receiptUrl String
+  status     String          @default("PENDING")
+  method     String?
+  businessId String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  business   BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model AdCampaign {
+  id           String          @id @default(uuid())
+  name         String
+  budget       Float
+  spent        Float           @default(0.0)
+  status       String          @default("ACTIVE")
+  targetRegion String?
+  businessId   String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  targetId     String?
+  targetType   String?
+  business     BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
