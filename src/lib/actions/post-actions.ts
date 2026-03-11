@@ -112,33 +112,53 @@ export async function getUserNotifications(userId: string) {
 
 export async function getPosts(locationFilter?: string, userId?: string) {
   try {
-    // 1. Obtener IDs de campañas activas (SQL puro)
-    const activeCampaigns: any[] = await (prisma as any).$queryRaw`
-      SELECT "targetId" FROM "AdCampaign" 
-      WHERE status = 'ACTIVE' AND "targetType" = 'POST' AND "targetId" IS NOT NULL
-    `;
+    // 1. Obtener IDs de campañas activas
+    let promotedIds: string[] = [];
+    try {
+      const activeCampaigns: any[] = await (prisma as any).$queryRaw`
+        SELECT "targetId" FROM "AdCampaign" 
+        WHERE status = 'ACTIVE' AND "targetType" = 'POST' AND "targetId" IS NOT NULL
+      `;
+      promotedIds = activeCampaigns.map(c => c.targetId);
+    } catch (e) {
+      console.warn('Warning: Could not fetch ad campaigns:', e);
+    }
 
-    const promotedIds = activeCampaigns.map(c => c.targetId);
+    // 2. Obtener publicaciones (Usamos Prisma ORM por defecto para mayor compatibilidad en Vercel)
+    let posts: any[] = [];
+    try {
+      posts = await prisma.post.findMany({
+        where: locationFilter ? { location: locationFilter } : {},
+        orderBy: { createdAt: 'desc' },
+        take: 30
+      });
+    } catch (sqlError) {
+      console.error('Prisma findMany failed, trying raw SQL fallback:', sqlError);
+      posts = locationFilter
+        ? await (prisma as any).$queryRaw`SELECT * FROM "Post" WHERE location = ${locationFilter} ORDER BY "createdAt" DESC LIMIT 30`
+        : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
+    }
 
-    // 2. Obtener publicaciones
-    const posts: any[] = locationFilter
-      ? await (prisma as any).$queryRaw`SELECT * FROM "Post" WHERE location = ${locationFilter} ORDER BY "createdAt" DESC LIMIT 30`
-      : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
+    if (!posts || posts.length === 0) {
+      console.log('getPosts: No posts found in database.');
+      return [];
+    }
 
-    if (!posts || posts.length === 0) return [];
-
-    // 3. Obtener los likes del usuario actual de una sola vez
+    // 3. Obtener los likes del usuario actual
     let likedPostIds = new Set<string>();
     if (userId) {
-      const postIds = posts.map(p => p.id);
-      if (postIds.length > 0) {
-        // UUIDs are alphanumeric+dash only — safe for direct interpolation
-        const inClause = postIds.map(id => `'${id}'`).join(',');
-        const userLikes: { postId: string }[] = await (prisma as any).$queryRawUnsafe(
-          `SELECT "postId" FROM "PostLike" WHERE "userId" = $1 AND "postId" IN (${inClause})`,
-          userId
-        );
-        likedPostIds = new Set(userLikes.map((l: { postId: string }) => l.postId));
+      try {
+        const postIds = posts.map(p => p.id);
+        const userLikes = await prisma.postLike.findMany({
+          where: {
+            userId,
+            postId: { in: postIds }
+          },
+          select: { postId: true }
+        });
+        likedPostIds = new Set(userLikes.map(l => l.postId));
+      } catch (e) {
+        console.error('Error fetching user likes:', e);
       }
     }
 
@@ -151,8 +171,8 @@ export async function getPosts(locationFilter?: string, userId?: string) {
       location: post.location,
       content: post.content,
       image_url: post.imageUrl,
-      created_at: new Date(post.createdAt).toISOString(),
-      updated_at: new Date(post.updatedAt).toISOString(),
+      created_at: post.createdAt instanceof Date ? post.createdAt.toISOString() : new Date(post.createdAt).toISOString(),
+      updated_at: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : new Date(post.updatedAt).toISOString(),
       isPromoted: promotedIds.includes(post.id),
       likedByUser: likedPostIds.has(post.id),
       reactions: {
@@ -165,7 +185,7 @@ export async function getPosts(locationFilter?: string, userId?: string) {
       return 0;
     });
   } catch (error) {
-    console.error('CRITICAL: Error fetching posts with raw SQL:', error);
+    console.error('CRITICAL: Error in getPosts:', error);
     return [];
   }
 }
