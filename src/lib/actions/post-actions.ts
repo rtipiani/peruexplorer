@@ -139,6 +139,8 @@ export async function getPosts(locationFilter?: string, userId?: string) {
         : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
     }
 
+    console.log(`getPosts: Found ${posts.length} posts in database.`);
+
     if (!posts || posts.length === 0) {
       console.log('getPosts: No posts found in database.');
       return [];
