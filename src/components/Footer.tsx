@@ -34,12 +34,7 @@ export default function Footer() {
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-        <span className="text-slate-600 text-[9px] font-black uppercase tracking-[0.5em]">{t('footer.copyright')}</span>
-        <div className="flex gap-10">
-          <span className="text-slate-600 text-[9px] font-black uppercase tracking-widest italic cursor-default hover:text-primary transition-colors">V3.1.0-EXP</span>
-        </div>
-      </div>
+      {/* Copyright and Version removed at user request */}
     </footer>
   );
 }
