@@ -149,21 +149,21 @@ export default function Home() {
       
       {/* Destinations Section */}
       <section id="lugares" className="section-padding px-6 max-w-[1600px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-32 gap-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-32 gap-8 lg:gap-12">
           <div className="max-w-3xl">
-            <span className="text-primary text-[10px] font-black uppercase tracking-[0.5em] mb-4 block">{t('destinations.selection')}</span>
-            <h2 className="text-6xl md:text-7xl font-black mb-10 tracking-[-0.05em] text-white leading-[0.85] italic">
+            <span className="text-primary text-[10px] font-black uppercase tracking-[0.3em] lg:tracking-[0.5em] mb-4 block">{t('destinations.selection')}</span>
+            <h2 className="text-4xl md:text-7xl font-black mb-6 lg:mb-10 tracking-[-0.05em] text-white leading-[0.85] italic">
               {t('destinations.title')} <br/>
               <span className="bronze-gradient not-italic">{t('destinations.legendary')}</span>
             </h2>
-            <div className="w-24 h-2 bg-primary mb-10"></div>
-            <p className="text-slate-500 text-xl font-medium leading-relaxed tracking-tight max-w-xl">
+            <div className="w-16 lg:w-24 h-1.5 lg:h-2 bg-primary mb-8 lg:mb-10"></div>
+            <p className="text-slate-500 text-lg lg:text-xl font-medium leading-relaxed tracking-tight max-w-xl">
               {t('destinations.description')}
             </p>
           </div>
           <Link 
             href="/destinos"
-            className="px-10 py-4 rounded-sm border border-white/10 text-white font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-black hover:border-white transition-all group"
+            className="w-full md:w-auto px-10 py-4 rounded-sm border border-white/10 text-white font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-black hover:border-white text-center transition-all group"
           >
             {t('destinations.viewAll')} <span className="inline-block transform group-hover:translate-x-1 transition-transform ml-2">→</span>
           </Link>

@@ -307,10 +307,10 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                 {/* 3. Lugar de ubicación (Prio 2: Color destacado/Slate suave) */}
                 <button 
                   onClick={() => router.push(`/?location=${encodeURIComponent(user.location)}`)}
-                  className="flex items-center gap-1 text-[12px] text-slate-300 font-semibold hover:text-primary transition-colors group/loc"
+                  className="flex items-center gap-1 text-[11px] lg:text-[12px] text-slate-300 font-semibold hover:text-primary transition-colors group/loc"
                 >
-                  <PiMapPin size={13} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform" />
-                  <span className="hover:underline decoration-primary/30 underline-offset-4">{user.location}</span>
+                  <PiMapPin size={12} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform lg:size-13" />
+                  <span className="hover:underline decoration-primary/30 underline-offset-4 truncate max-w-[100px] lg:max-w-none">{user.location}</span>
                 </button>
 
                 {/* 4. Estado Editado (Opcional) */}
@@ -483,8 +483,8 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
               </div>
            </div>
 
-           {/* FILA INFERIOR: Acciones en 3 Columnas Estilo Archivo */}
-           <div className="flex items-center justify-between border-t border-white/[0.03] pt-4">
+           {/* FILA INFERIOR: Acciones en Columnas Estilo Archivo */}
+           <div className="flex items-center justify-between border-t border-white/[0.03] pt-4 gap-1 lg:gap-2">
               {/* Columna 1: LIKES */}
               <div className="flex-1 flex flex-col items-center gap-2 border-r border-white/[0.03]">
                 <button
@@ -504,15 +504,15 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                       setLocalLoves(v => newLiked ? v - 1 : v + 1);
                     }
                   }}
-                  className={`transition-all duration-300 flex flex-col items-center gap-2 ${isLiked ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
+                  className={`transition-all duration-300 flex flex-col items-center gap-1 lg:gap-2 ${isLiked ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
                 >
                   {isLiked ? (
-                    <PiHeartFill size={18} className="drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]" />
+                    <PiHeartFill size={16} className="lg:size-18 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]" />
                   ) : (
-                    <PiHeart size={18} />
+                    <PiHeart size={16} className="lg:size-18" />
                   )}
-                  <span className="text-[9px] font-black tracking-widest text-slate-600 uppercase">
-                    {localLoves.toLocaleString()} LIKES
+                  <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
+                    {localLoves.toLocaleString()} <span className="hidden xs:inline">LIKES</span>
                   </span>
                 </button>
               </div>
@@ -521,11 +521,11 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
               <div className="flex-1 flex flex-col items-center gap-2 border-r border-white/[0.03]">
                  <button 
                   onClick={() => setShowComments(!showComments)}
-                  className={`flex flex-col items-center gap-2 transition-colors ${showComments ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
+                  className={`flex flex-col items-center gap-1 lg:gap-2 transition-colors ${showComments ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
                  >
-                   <PiChatCircle size={18} />
-                   <span className="text-[9px] font-black tracking-widest text-slate-600 uppercase">
-                     {reactions.comments} COMMENTS
+                   <PiChatCircle size={16} className="lg:size-18" />
+                   <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
+                     {reactions.comments} <span className="hidden xs:inline">COMMENTS</span>
                    </span>
                  </button>
               </div>
@@ -554,11 +554,11 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                        setTimeout(() => setShared(false), 2000);
                      }
                    }}
-                   className={`flex flex-col items-center gap-2 transition-colors ${shared ? 'text-green-400' : 'text-slate-500 hover:text-white'}`}
+                   className={`flex flex-col items-center gap-1 lg:gap-2 transition-colors ${shared ? 'text-green-400' : 'text-slate-500 hover:text-white'}`}
                  >
-                   {shared ? <Check size={18} /> : <PiPaperPlaneTilt size={18} />}
-                   <span className="text-[9px] font-black tracking-widest text-slate-600 uppercase">
-                     {shared ? 'COPIADO' : 'SHARE'}
+                   {shared ? <Check size={16} className="lg:size-18" /> : <PiPaperPlaneTilt size={16} className="lg:size-18" />}
+                   <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
+                     {shared ? 'COPIADO' : <span className="hidden xs:inline">SHARE</span>}
                    </span>
                  </button>
               </div>

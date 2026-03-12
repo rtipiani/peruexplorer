@@ -142,8 +142,8 @@ export default function PeruMap({ locations }: PeruMapProps) {
 
       {/* Panel de detalle del destino seleccionado */}
       {selected && (
-        <div className="absolute top-4 left-4 w-80 z-[1000] animate-in slide-in-from-left duration-300">
-          <div className="bg-black/95 border border-white/10 shadow-2xl shadow-black/50 backdrop-blur-md">
+        <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-80 z-[1000] animate-in slide-in-from-left duration-300">
+          <div className="bg-black/95 border border-white/10 shadow-2xl shadow-black/50 backdrop-blur-md overflow-hidden rounded-sm">
             {/* Header con imagen */}
             <div className="relative aspect-video overflow-hidden">
               <Image
@@ -203,10 +203,10 @@ export default function PeruMap({ locations }: PeruMapProps) {
       )}
 
       {/* Leyenda */}
-      <div className="absolute bottom-8 left-4 z-[1000]">
-        <div className="bg-black/80 border border-white/5 backdrop-blur-md px-4 py-3 flex items-center gap-3">
-          <div className="w-4 h-4 rounded-full bg-primary border border-white/20" />
-          <span className="text-[9px] font-black text-slate-500 tracking-widest uppercase">{locations.length} Destinos activos</span>
+      <div className="absolute bottom-16 sm:bottom-8 left-4 z-[1000]">
+        <div className="bg-black/80 border border-white/5 backdrop-blur-md px-4 py-2 sm:py-3 flex items-center gap-3">
+          <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary border border-white/20" />
+          <span className="text-[8px] sm:text-[9px] font-black text-slate-500 tracking-widest uppercase">{locations.length} Destinos activos</span>
         </div>
       </div>
     </div>

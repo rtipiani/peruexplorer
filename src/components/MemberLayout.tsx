@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   Bell,
   Megaphone,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react';
 
 interface MemberLayoutProps {
@@ -32,6 +33,7 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -81,21 +83,38 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
 
   return (
     <div className="flex h-screen bg-black overflow-hidden font-sans">
-      {/* Sidebar - FIXED */}
-      <aside className="w-72 bg-slate-950 flex flex-col border-r border-white/5 relative z-30">
-        <div className="p-8">
-          <Link href="/" className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            PERU<span className="text-primary italic">X</span>
-          </Link>
-          <div className="mt-2 text-[8px] font-black text-slate-700 tracking-widest">Operation Network // 2026</div>
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - FIXED & RESPONSIVE */}
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-slate-950 flex flex-col border-r border-white/5 z-50 transition-transform duration-300 transform lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-8 flex items-center justify-between">
+          <div>
+            <Link href="/" className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+              PERU<span className="text-primary italic">X</span>
+            </Link>
+            <div className="mt-2 text-[8px] font-black text-slate-700 tracking-widest">Operation Network // 2026</div>
+          </div>
+          <button 
+            className="lg:hidden p-2 text-slate-500 hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
           <div className="text-[10px] font-black text-slate-700 tracking-[0.3em] px-4 mb-6">Main Grid</div>
           {navItems.map((item, i) => (
             <Link 
               key={i} 
               href={item.href}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-4 px-4 py-3.5 rounded-sm transition-all group ${activeItem === item.id ? 'bg-primary text-slate-900 font-bold' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}
             >
               <span className={`${activeItem === item.id ? 'text-slate-900' : 'text-slate-700 group-hover:text-primary transition-colors'}`}>
@@ -132,32 +151,38 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
       <div className="flex-1 flex flex-col relative overflow-hidden">
         {/* Top Control Bar */}
         <header className="h-20 bg-black border-b border-white/5 flex items-center relative z-20">
-          <div className="max-w-[1400px] mx-auto w-full flex justify-center gap-16 px-10">
-            {/* Buscador - Alineado con el feed */}
+          <div className="max-w-[1400px] mx-auto w-full flex items-center gap-4 lg:gap-16 px-6 lg:px-10">
+            {/* Mobile Menu Button */}
+            <button 
+              className="lg:hidden p-2 text-slate-400 hover:text-white"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <LayoutDashboard size={22} />
+            </button>
             <div className="flex-1 max-w-2xl">
               <div className="relative group">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-primary transition-colors" />
                 <input 
                   type="text" 
-                  placeholder="Search nodes, posts or files..." 
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-sm py-2.5 pl-12 pr-6 text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-primary/40 focus:border-primary/50 transition-all outline-none"
+                  placeholder="Search nodes..." 
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-sm py-2 px-10 lg:pl-12 lg:pr-6 text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-primary/40 focus:border-primary/50 transition-all outline-none"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-500 border border-white/20 px-1.5 py-0.5 rounded-sm bg-black/50">⌘K</div>
+                <div className="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-500 border border-white/20 px-1.5 py-0.5 rounded-sm bg-black/50">⌘K</div>
               </div>
             </div>
 
-            {/* Control Hub - Alineado con Publicidad */}
-            <div className="hidden lg:flex w-64 items-center justify-end gap-5">
-                <div className="flex gap-2 relative">
+            {/* Control Hub */}
+            <div className="flex items-center justify-end gap-3 lg:gap-5 lg:w-64">
+                <div className="flex gap-1.5 lg:gap-2 relative">
                   <div className="relative">
                     <button 
                      onClick={toggleNotifications}
-                     className={`w-9 h-9 rounded-sm border flex items-center justify-center transition-all group/bell ${showNotifications ? 'bg-primary text-slate-900 border-primary' : 'bg-white/5 border-white/5 text-slate-500 hover:text-white hover:bg-white/10'}`} 
+                     className={`w-8 h-8 lg:w-9 lg:h-9 rounded-sm border flex items-center justify-center transition-all group/bell ${showNotifications ? 'bg-primary text-slate-900 border-primary' : 'bg-white/5 border-white/5 text-slate-500 hover:text-white hover:bg-white/10'}`} 
                      title="Notificaciones"
                     >
-                       <Bell size={16} className={unreadCount > 0 ? (showNotifications ? 'text-slate-900' : 'text-primary fill-primary/10') : (showNotifications ? 'text-slate-900' : 'group-hover/bell:text-primary transition-colors')} />
+                       <Bell size={14} className={unreadCount > 0 ? (showNotifications ? 'text-slate-900' : 'text-primary fill-primary/10') : (showNotifications ? 'text-slate-900' : 'group-hover/bell:text-primary transition-colors')} />
                        {unreadCount > 0 && !showNotifications && (
-                         <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[8px] font-black text-slate-900 flex items-center justify-center border-2 border-black animate-in zoom-in duration-300">
+                         <div className="absolute -top-1 -right-1 w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-primary text-[8px] font-black text-slate-900 flex items-center justify-center border-2 border-black animate-in zoom-in duration-300">
                            {unreadCount > 9 ? '+9' : unreadCount}
                          </div>
                        )}
@@ -170,7 +195,7 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
                           className="fixed inset-0 z-40" 
                           onClick={() => setShowNotifications(false)} 
                         />
-                        <div className="absolute right-0 mt-3 w-80 bg-slate-950 border border-white/10 rounded-sm shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute right-0 mt-3 w-72 lg:w-80 bg-slate-950 border border-white/10 rounded-sm shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                           <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/40">
                             <span className="text-[10px] font-black tracking-widest text-slate-400">Recientes</span>
                             <Link 
@@ -219,22 +244,22 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
                       </>
                     )}
                   </div>
-                  <Link href="/professional" className="w-9 h-9 rounded-sm bg-white/5 border border-white/5 flex items-center justify-center text-slate-500 relative hover:text-white hover:bg-white/10 cursor-pointer transition-all group/pro" title="Panel Profesional">
-                     <Megaphone size={16} className="group-hover/pro:text-primary transition-colors" />
+                  <Link href="/professional" className="w-8 h-8 lg:w-9 lg:h-9 rounded-sm bg-white/5 border border-white/5 flex items-center justify-center text-slate-500 relative hover:text-white hover:bg-white/10 cursor-pointer transition-all group/pro" title="Panel Profesional">
+                     <Megaphone size={14} className="group-hover/pro:text-primary transition-colors" />
                   </Link>
                 </div>
 
                {/* User Context */}
-               <div className="pl-2 border-l border-white/10 flex items-center gap-3">
+               <div className="pl-2 lg:pl-4 border-l border-white/10 flex items-center gap-2 lg:gap-3">
                  <div className="flex flex-col items-end hidden sm:flex">
-                    <div className="text-[9px] font-black text-white tracking-tight leading-none mb-0.5 uppercase truncate max-w-[120px]">
+                    <div className="text-[9px] font-black text-white tracking-tight leading-none mb-0.5 uppercase truncate max-w-[80px] lg:max-w-[120px]">
                       {user?.fullName || user?.username || 'Explorer'}
                     </div>
-                    <div className="text-[8px] font-bold text-primary tracking-widest uppercase truncate max-w-[100px]">
+                    <div className="text-[8px] font-bold text-primary tracking-widest uppercase truncate max-w-[70px] lg:max-w-[100px]">
                       @{user?.username || 'member'}
                     </div>
                  </div>
-                 <div className="scale-90 border border-white/20 rounded-full p-0.5 hover:border-primary/50 transition-colors">
+                 <div className="scale-75 lg:scale-90 border border-white/20 rounded-full p-0.5 hover:border-primary/50 transition-colors">
                     <UserButton />
                  </div>
                </div>
@@ -244,7 +269,7 @@ export default function MemberLayout({ children, activeItem = 'feed' }: MemberLa
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto bg-black custom-scrollbar relative">
-          <div className="p-10 pb-32">
+          <div className="p-4 lg:p-10 pb-32">
             {children}
           </div>
         </main>

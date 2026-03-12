@@ -181,26 +181,28 @@ export default function PostCreator() {
             accept="image/*" 
             className="hidden" 
           />
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2 lg:gap-4">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-sm text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-white transition-all flex items-center gap-3 group/tool"
+              className="px-3 lg:px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-sm text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.15em] lg:tracking-[0.2em] text-slate-400 hover:text-white transition-all flex items-center gap-2 lg:gap-3 group/tool"
             >
                <ImageIcon size={14} className="group-hover:text-primary transition-colors" />
                <span>{t('community.multimedia')}</span>
             </button>
-            <div className="flex items-center gap-2 group/loc">
+            <div className="flex items-center gap-1 lg:gap-2 group/loc">
               <button 
                 onClick={handleGetLocation}
                 disabled={isDetectingLocation}
-                className={`px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-sm text-[9px] font-bold uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${isDetectingLocation ? 'animate-pulse text-primary' : 'text-slate-400 hover:text-white'}`}
+                className={`px-3 lg:px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-sm text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.15em] lg:tracking-[0.2em] transition-all flex items-center gap-2 lg:gap-3 ${isDetectingLocation ? 'animate-pulse text-primary' : 'text-slate-400 hover:text-white'}`}
               >
                 {isDetectingLocation ? (
                   <div className="w-3 h-3 border border-primary/30 border-t-primary animate-spin rounded-full" />
                 ) : (
                   <MapPin size={14} className={locationName ? 'text-primary' : 'group-hover/loc:text-primary transition-colors'} />
                 )}
-                <span>{isDetectingLocation ? 'Detectando...' : locationName || t('community.location')}</span>
+                <span className="truncate max-w-[80px] lg:max-w-none">
+                  {isDetectingLocation ? 'Detectando...' : locationName || t('community.location')}
+                </span>
               </button>
               
               {locationName && !isDetectingLocation && (

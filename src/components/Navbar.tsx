@@ -10,10 +10,13 @@ import {
 
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Locale } from '@/i18n/translations';
+import { Menu, X, Globe } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { isSignedIn } = useAuth();
   const { t, locale, setLocale } = useLanguage();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const locales: { code: Locale; label: string; flag: string }[] = [
     { code: 'es', label: 'Español', flag: '🇪🇸' },
@@ -25,7 +28,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
-      <div className="glass flex items-center justify-between w-full max-w-6xl px-8 py-3 rounded-full">
+      <div className={`glass flex items-center justify-between w-full max-w-6xl px-6 lg:px-8 py-3 rounded-full transition-all duration-300 ${isMenuOpen ? 'rounded-b-none' : ''}`}>
         <div className="flex items-center gap-10">
           <Link href="/" className="text-xl font-black tracking-tight text-white">
             PERU<span className="text-primary">EXPLORER</span>
@@ -49,7 +52,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-8">
+        {/* Desktop Controls */}
+        <div className="hidden lg:flex items-center gap-8">
           {/* Language Switcher */}
           <div className="relative group/lang">
             <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover/lang:text-white transition-colors">
@@ -99,6 +103,64 @@ export default function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors"
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+
+        {/* Mobile Menu Dropdown */}
+        {isMenuOpen && (
+          <div className="lg:hidden absolute top-full left-0 right-0 mt-px glass rounded-b-3xl p-6 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                {!isSignedIn ? (
+                  <>
+                    <Link href="/comunidad" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav.community')}</Link>
+                    <Link href="/destinos" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav.destinations')}</Link>
+                    <Link href="/planificar" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav.plan')}</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav_auth.feed')}</Link>
+                    <Link href="/destinos" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav_auth.archive')}</Link>
+                    <Link href="/planificar" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white py-2">{t('nav_auth.expeditions')}</Link>
+                    <Link href="/mapa" onClick={() => setIsMenuOpen(false)} className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white py-2">{t('nav_auth.map')}</Link>
+                  </>
+                )}
+              </div>
+
+              <div className="h-px bg-white/5 w-full"></div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex gap-4">
+                {locales.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => { setLocale(l.code); setIsMenuOpen(false); }}
+                    className={`text-[10px] font-black uppercase tracking-widest ${locale === l.code ? 'text-primary' : 'text-slate-500'}`}
+                  >
+                    {l.code}
+                  </button>
+                ))}
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  {!isSignedIn ? (
+                    <SignInButton mode="modal">
+                      <button className="text-[10px] font-black uppercase tracking-widest text-primary">{t('nav.login')}</button>
+                    </SignInButton>
+                  ) : (
+                    <UserButton />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
