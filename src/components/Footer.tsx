@@ -34,7 +34,11 @@ export default function Footer() {
         </div>
       </div>
       
-      {/* Copyright and Version removed at user request */}
+      <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
+        <span className="text-slate-600 text-[9px] font-black uppercase tracking-[0.5em]">
+          Peru Explorer - Todos los derechos reservados © 2026
+        </span>
+      </div>
     </footer>
   );
 }
