@@ -115,7 +115,7 @@ export default function PostCreator() {
           <h3 className="text-2xl font-black mb-4 tracking-tight italic">{t('community.joinTitle')}</h3>
           <p className="text-sm text-slate-400 mb-10 font-medium max-w-sm italic leading-relaxed">{t('community.joinDesc')}</p>
           <SignInButton mode="modal">
-            <button className="px-12 py-5 bg-primary text-slate-900 font-bold text-[10px] tracking-[0.3em] hover:bg-white transition-all shadow-xl shadow-primary/20">
+            <button className="px-10 py-3 bg-primary text-slate-900 font-bold text-[11px] uppercase tracking-wider hover:bg-white transition-all shadow-xl shadow-primary/20">
               {t('community.enterNow')}
             </button>
           </SignInButton>
@@ -219,7 +219,7 @@ export default function PostCreator() {
           <button 
             onClick={handleSubmit}
             disabled={(!content.trim() && !selectedImage) || isSubmitting}
-            className={`w-full sm:w-auto px-10 py-3 rounded-sm font-black text-[9px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 relative overflow-hidden group/publish ${
+            className={`w-full sm:w-auto px-8 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-3 relative overflow-hidden group/publish ${
               (content.trim() || selectedImage) && !isSubmitting 
               ? 'bg-primary text-slate-900 hover:bg-white hover:-translate-y-0.5 shadow-[0_10px_20px_-10px_rgba(205,170,125,0.3)] active:translate-y-0' 
               : 'bg-white/5 text-slate-700 cursor-not-allowed grayscale'
