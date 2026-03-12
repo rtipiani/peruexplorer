@@ -7,12 +7,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 interface PeruMapProps {
-  locations: Location[];
+  locations: (Location & { distance?: number })[];
+  userLocation?: { lat: number; lng: number };
+  highlightedLocationId?: string | null;
 }
 
-export default function PeruMap({ locations }: PeruMapProps) {
+export default function PeruMap({ locations, userLocation, highlightedLocationId }: PeruMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<{ [key: string]: any }>({});
+  const userMarkerRef = useRef<any>(null);
   const [selected, setSelected] = useState<Location | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -88,6 +92,8 @@ export default function PeruMap({ locations }: PeruMapProps) {
           { icon: createCustomIcon() }
         ).addTo(map);
 
+        markersRef.current[location.id] = marker;
+
         marker.on('click', () => {
           setSelected(location);
           map.flyTo([location.coordinates.lat, location.coordinates.lng], 9, {
@@ -95,19 +101,43 @@ export default function PeruMap({ locations }: PeruMapProps) {
           });
         });
 
-        // Tooltip con el nombre
+        // Tooltip con el nombre y distancia
+        const distanceText = location.distance 
+          ? `<div style="color:#A68D5B; margin-top:2px;">A ${location.distance.toFixed(1)} km de ti</div>`
+          : '';
+
         marker.bindTooltip(`
           <div style="
             background:#0a0a0a; border:1px solid rgba(166,141,91,0.4);
             color:#fff; font-size:10px; font-weight:900;
             letter-spacing:0.15em; text-transform:uppercase;
             padding:6px 12px; border-radius:2px;
-          ">${location.name}</div>
+            text-align: center;
+          ">
+            <div>${location.name}</div>
+            ${distanceText}
+          </div>
         `, { 
           permanent: false, direction: 'top', offset: [0, -40],
           className: 'leaflet-dark-tooltip'
         });
       });
+
+      // Marcador de Ubicación del Usuario
+      if (userLocation) {
+        const userIcon = L.divIcon({
+          className: '',
+          html: `
+            <div class="relative flex items-center justify-center">
+              <div class="absolute w-8 h-8 bg-blue-500/20 rounded-full animate-ping"></div>
+              <div class="relative w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg"></div>
+            </div>
+          `,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        });
+        userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon, zIndexOffset: 1000 }).addTo(map);
+      }
 
       mapInstanceRef.current = map;
       setIsLoaded(true);
@@ -118,6 +148,50 @@ export default function PeruMap({ locations }: PeruMapProps) {
       mapInstanceRef.current = null;
     };
   }, []);
+
+  // Efecto para geolocalización dinámica y centrado
+  useEffect(() => {
+    if (!mapInstanceRef.current || !userLocation) return;
+    
+    // Actualizar o crear marcador de usuario
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
+    } else {
+      import('leaflet').then((L) => {
+        const userIcon = L.divIcon({
+          className: '',
+          html: `
+            <div class="relative flex items-center justify-center">
+              <div class="absolute w-8 h-8 bg-blue-500/20 rounded-full animate-ping"></div>
+              <div class="relative w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg"></div>
+            </div>
+          `,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        });
+        userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon, zIndexOffset: 1000 }).addTo(mapInstanceRef.current);
+      });
+    }
+  }, [userLocation]);
+
+  // Efecto para resaltar destino buscado
+  useEffect(() => {
+    if (!mapInstanceRef.current || !highlightedLocationId) return;
+    
+    const location = locations.find(l => l.id === highlightedLocationId);
+    if (location) {
+      setSelected(location);
+      mapInstanceRef.current.flyTo([location.coordinates.lat, location.coordinates.lng], 10, {
+        animate: true, duration: 1.5
+      });
+      
+      // Abrir tooltip del marcador resaltado
+      const marker = markersRef.current[highlightedLocationId];
+      if (marker) {
+        marker.openTooltip();
+      }
+    }
+  }, [highlightedLocationId, locations]);
 
   return (
     <div className="relative w-full h-full">
