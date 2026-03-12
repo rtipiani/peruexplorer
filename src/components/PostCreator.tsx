@@ -167,12 +167,6 @@ export default function PostCreator() {
             >
               <X size={18} />
             </button>
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <p className="text-[10px] text-green-400 font-mono uppercase tracking-[0.2em] font-bold">
-                Diagnostics: Image Buffer Active ({Math.round(selectedImage.length/1024)} KB)
-              </p>
-            </div>
           </div>
         )}
 

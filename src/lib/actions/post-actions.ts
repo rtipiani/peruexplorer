@@ -112,23 +112,7 @@ export async function getUserNotifications(userId: string) {
 
 export async function getPosts(locationFilter?: string, userId?: string) {
   try {
-    const dbUrl = process.env.DATABASE_URL;
-    let dbStatus = "OK";
-    
-    if (!dbUrl) dbStatus = "MISSING";
-    else if (dbUrl === "undefined") dbStatus = "LITERAL_UNDEFINED_STRING";
-    else if (dbUrl.trim() === "") dbStatus = "EMPTY_STRING";
-
-    const dbPrefix = dbUrl ? dbUrl.substring(0, 25) : "NONE";
-    console.log(`getPosts diagnostic: Status=${dbStatus}, Prefix=${dbPrefix}`);
-    
-    // 0. Conteo total (ignora filtros) para diagnóstico
-    let totalInDb = 0;
-    try {
-      totalInDb = await prisma.post.count();
-    } catch (e) {
-      console.error('Count check failed:', e);
-    }
+    const sanitizedFilter = (locationFilter && locationFilter.trim() !== "") ? locationFilter.trim() : null;
 
     // 1. Obtener IDs de campañas activas
     let promotedIds: string[] = [];
@@ -144,8 +128,6 @@ export async function getPosts(locationFilter?: string, userId?: string) {
 
     // 2. Obtener publicaciones (Usamos Prisma ORM por defecto para mayor compatibilidad en Vercel)
     let posts: any[] = [];
-    const sanitizedFilter = (locationFilter && locationFilter.trim() !== "") ? locationFilter.trim() : null;
-
     try {
       posts = await prisma.post.findMany({
         where: sanitizedFilter ? { location: sanitizedFilter } : {},
@@ -159,12 +141,7 @@ export async function getPosts(locationFilter?: string, userId?: string) {
         : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
     }
 
-    console.log(`getPosts diagnostic: Query success. Found ${posts.length} posts.`);
-
-    if (!posts || posts.length === 0) {
-      console.log('getPosts diagnostic: Zero posts returned from database.');
-      return [];
-    }
+    if (!posts || posts.length === 0) return [];
 
     // 3. Obtener los likes del usuario actual
     let likedPostIds = new Set<string>();
@@ -207,15 +184,10 @@ export async function getPosts(locationFilter?: string, userId?: string) {
       return 0;
     });
 
-    return {
-      posts: formattedPosts,
-      totalInDb,
-      dbPrefix: dbStatus === "OK" ? dbPrefix : `ERR:${dbStatus}`,
-      filterUsed: locationFilter || 'none'
-    };
+    return formattedPosts;
   } catch (error) {
     console.error('CRITICAL: Error in getPosts:', error);
-    return { posts: [], error: 'CRITICAL_ACTION_ERROR', totalInDb: 0 };
+    return [];
   }
 }
 
