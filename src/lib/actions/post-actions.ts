@@ -11,7 +11,11 @@ export async function createPost(data: {
   location: string;
   imageUrl?: string;
 }) {
+  console.log('[SERVER ACTION] createPost triggered for user:', data.userId);
+  const startTime = Date.now();
+  
   try {
+    console.log('[SERVER ACTION] Saving post to database...');
     const post = await prisma.post.create({
       data: {
         userId: data.userId,
@@ -23,14 +27,21 @@ export async function createPost(data: {
       },
     });
     revalidatePath('/');
+    console.log(`[SERVER ACTION] Post saved successfully in ${Date.now() - startTime}ms. ID:`, post.id);
 
     // Generar notificación global de nueva publicación
-    await createNotification({
-      type: 'POST_CREATED',
-      message: `${data.userName} ha compartido una nueva visión ancestral.`,
-      triggerUserId: data.userId,
-      postId: post.id
-    });
+    try {
+      console.log('[SERVER ACTION] Creating notification...');
+      await createNotification({
+        type: 'POST_CREATED',
+        message: `${data.userName} ha compartido una nueva visión ancestral.`,
+        triggerUserId: data.userId,
+        postId: post.id
+      });
+      console.log('[SERVER ACTION] Notification created.');
+    } catch (notifErr) {
+      console.error('[SERVER ACTION] Non-critical error creating notification:', notifErr);
+    }
 
     return { success: true, post };
   } catch (error) {
