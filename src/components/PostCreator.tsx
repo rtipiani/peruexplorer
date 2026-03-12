@@ -1,5 +1,8 @@
 'use client';
 
+// Peru Explorer - Community Post Creator Component
+// Clean production version - No diagnostics active
+
 import { useState, useRef } from 'react';
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { useLanguage } from '@/i18n/LanguageContext';
