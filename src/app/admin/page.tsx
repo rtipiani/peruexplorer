@@ -14,7 +14,8 @@ import {
   User,
   XCircle,
   FileText,
-  MapPin
+  MapPin,
+  Edit2
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -29,7 +30,8 @@ import {
 } from "@/app/actions/adminActions";
 import { 
   getAdminLocations, 
-  updateLocationImage 
+  updateLocationImage,
+  updateLocationName
 } from "@/app/actions/locationActions";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -263,6 +265,29 @@ export default function AdminDashboard() {
       setIsUpdatingLocation(null);
       // Limpiar el input para permitir subir la misma foto si se desea
       e.target.value = '';
+    }
+  };
+
+  const handleUpdateName = async (id: string, currentName: string) => {
+    const newName = window.prompt("Introduce el nuevo nombre para este destino:", currentName);
+    if (!newName || newName.trim() === "" || newName === currentName) return;
+
+    setIsUpdatingLocation(id);
+    const loadingToast = toast.loading("Actualizando nombre...");
+    
+    try {
+      const res = await updateLocationName(id, newName);
+      if (res.success) {
+        toast.success("Nombre actualizado correctamente", { id: loadingToast });
+        fetchLocations();
+      } else {
+        toast.error(res.error || "No se pudo actualizar el nombre", { id: loadingToast });
+      }
+    } catch (error) {
+      console.error("Error al actualizar el nombre:", error);
+      toast.error("Error crítico de red", { id: loadingToast });
+    } finally {
+      setIsUpdatingLocation(null);
     }
   };
 
@@ -686,7 +711,15 @@ export default function AdminDashboard() {
                           <span className="text-slate-600">&bull;</span>
                           <span className="text-[9px] text-slate-500 uppercase">{loc.id.slice(0, 8)}...</span>
                         </div>
-                        <h4 className="text-xs font-bold text-white truncate">{loc.name}</h4>
+                        <div className="flex items-center gap-2 group/name">
+                          <h4 className="text-xs font-bold text-white truncate">{loc.name}</h4>
+                          <button 
+                            onClick={() => handleUpdateName(loc.id, loc.name)}
+                            className="text-slate-600 hover:text-primary transition-colors opacity-0 group-hover/name:opacity-100"
+                          >
+                            <Edit2 size={10} />
+                          </button>
+                        </div>
                       </div>
                       <div className="flex items-center justify-between text-[9px] text-slate-500">
                          <span>{loc.altitude}</span>

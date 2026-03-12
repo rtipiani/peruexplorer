@@ -29,26 +29,34 @@ export async function getAdminLocations() {
   }
 }
 
-export async function updateLocationImage(locationId: string, imageUrl: string) {
+export async function updateLocation(id: string, data: any) {
   try {
     const isAuthorized = await isAdmin();
     if (!isAuthorized) throw new Error("No autorizado");
 
     await (prisma as any).touristLocation.update({
-      where: { id: locationId },
-      data: { image: imageUrl }
+      where: { id },
+      data
     });
 
     revalidatePath("/admin");
     revalidatePath("/mapa");
-    revalidatePath(`/destinos/${locationId}`);
+    revalidatePath(`/destinos/${id}`);
     revalidatePath("/");
 
     return { success: true };
   } catch (error: any) {
-    console.error("Error updating location image:", error);
+    console.error("Error updating location:", error);
     return { success: false, error: error.message || "Error interno" };
   }
+}
+
+export async function updateLocationImage(locationId: string, imageUrl: string) {
+  return updateLocation(locationId, { image: imageUrl });
+}
+
+export async function updateLocationName(locationId: string, name: string) {
+  return updateLocation(locationId, { name });
 }
 
 export async function createLocation(data: any) {
