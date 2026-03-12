@@ -287,41 +287,40 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                 <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold text-[10px] rounded-full">PX</div>
               )}
             </div>
-            <div className="flex flex-col justify-center grow">
-              <div className="flex items-center gap-x-2 flex-wrap leading-tight">
-                {/* 1. Nombre de usuario (Prio 1: Blanco/Resaltado) */}
-                <span className="font-bold text-white text-[13px] tracking-tight flex items-center gap-2">
+            <div className="flex flex-col gap-1 grow">
+              {/* Línea 1: Nombre y Medalla de Promoción */}
+              <div className="flex items-center justify-between gap-4 w-full pr-2">
+                <span className="font-bold text-white text-[13px] tracking-tight truncate max-w-[180px] sm:max-w-none">
                   {user.name}
-                  {isPromoted && (
-                    <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 border border-primary/20 rounded-sm text-[8px] font-black text-primary uppercase tracking-widest animate-pulse">
-                      <Megaphone size={8} /> Promocionado
-                    </span>
-                  )}
                 </span>
-                
-                {/* 2. Conector "está en" (Prio 3: Subtle Slate) */}
-                <span className="text-[11px] text-slate-500 font-medium">
+                {isPromoted && (
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 border border-primary/20 rounded-sm text-[8px] font-black text-primary uppercase tracking-widest animate-pulse whitespace-nowrap">
+                    <Megaphone size={8} /> Promocionado
+                  </span>
+                )}
+              </div>
+              
+              {/* Línea 2: Ubicación y Estado Editado */}
+              <div className="flex items-center gap-x-2 flex-wrap leading-tight">
+                <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">
                   está en
                 </span>
-
-                {/* 3. Lugar de ubicación (Prio 2: Color destacado/Slate suave) */}
                 <button 
                   onClick={() => router.push(`/?location=${encodeURIComponent(user.location)}`)}
                   className="flex items-center gap-1 text-[11px] lg:text-[12px] text-slate-300 font-semibold hover:text-primary transition-colors group/loc"
                 >
-                  <PiMapPin size={12} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform lg:size-13" />
-                  <span className="hover:underline decoration-primary/30 underline-offset-4 truncate max-w-[100px] lg:max-w-none">{user.location}</span>
+                  <PiMapPin size={11} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform lg:size-13" />
+                  <span className="hover:underline decoration-primary/30 underline-offset-4 truncate max-w-[120px] sm:max-w-none">{user.location}</span>
                 </button>
-
-                {/* 4. Estado Editado (Opcional) */}
                 {edited && (
                   <span className="text-[10px] text-slate-600 italic">
                     • {t('community.edited')}
                   </span>
                 )}
               </div>
-              {/* Nueva línea: Fecha y Hora */}
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium tracking-wide mt-1">
+
+              {/* Línea 3: Fecha y Hora */}
+              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium tracking-wide">
                 <Clock size={11} className="text-slate-600" />
                 <span>{timestamp}</span>
               </div>
