@@ -2,39 +2,44 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { locations } from '@/data/tourismData';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useEffect, useState } from 'react';
 import { ArrowLeft, Mountain, Clock, ShieldCheck } from 'lucide-react';
+import { getLocationById } from '@/app/actions/locationActions';
 
 export default function PlaceDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [location, setLocation] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const fetchLocation = async () => {
+      if (params.id) {
+        const res = await getLocationById(params.id as string);
+        if (res.success) {
+          setLocation(res.data);
+        }
+      }
+      setIsLoading(false);
+    };
+    fetchLocation();
+  }, [params.id]);
 
-  const location = locations.find(l => l.id === params.id);
-
-  if (!location) {
+  if (!mounted || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <h1 className="text-4xl font-black mb-4 tracking-tighter italic uppercase text-slate-900">404_NOT_FOUND</h1>
-          <button onClick={() => router.push('/')} className="text-primary font-bold text-[10px] uppercase tracking-widest hover:underline">
-            ← {t('nav.destinations')}
-          </button>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-primary animate-pulse font-black tracking-widest text-[10px] uppercase">
+          Accediendo al Archivo...
         </div>
       </div>
     );
   }
-
-  if (!mounted) return null;
 
   return (
     <main className="min-h-screen bg-white">
@@ -85,7 +90,7 @@ export default function PlaceDetailPage() {
                     <Mountain size={14} />
                     <span className="text-[10px] font-bold uppercase tracking-widest">{t('destinations.altitude')}</span>
                   </div>
-                  <span className="text-sm font-black italic">{location.metadata.altitude}</span>
+                  <span className="text-sm font-black italic">{location.altitude}</span>
                 </div>
                 
                 <div className="flex justify-between items-center border-b border-white/10 pb-4">
@@ -93,7 +98,7 @@ export default function PlaceDetailPage() {
                     <ShieldCheck size={14} />
                     <span className="text-[10px] font-bold uppercase tracking-widest">{t('destinations.difficulty')}</span>
                   </div>
-                  <span className="text-sm font-black italic uppercase">{location.metadata.difficulty}</span>
+                  <span className="text-sm font-black italic uppercase">{location.difficulty}</span>
                 </div>
                 
                 <div className="flex justify-between items-center border-b border-white/10 pb-4">
@@ -101,7 +106,7 @@ export default function PlaceDetailPage() {
                     <Clock size={14} />
                     <span className="text-[10px] font-bold uppercase tracking-widest">{t('destinations.duration')}</span>
                   </div>
-                  <span className="text-sm font-black italic uppercase">{location.metadata.duration}</span>
+                  <span className="text-sm font-black italic uppercase">{location.duration}</span>
                 </div>
               </div>
               

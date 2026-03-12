@@ -12,28 +12,53 @@ import TravelCalendar from "@/components/TravelCalendar";
 import CommunityHub from "@/components/CommunityHub";
 import MemberLayout from "@/components/MemberLayout";
 import SponsoredSidebar from "@/components/SponsoredSidebar";
-import { locations } from "@/data/tourismData";
+import { getLocations } from '@/app/actions/locationActions';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useMemo } from 'react';
-import { MapPin, Star } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { MapPin, Star, RefreshCw } from 'lucide-react';
 
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { t } = useLanguage();
+  const [dbLocations, setDbLocations] = useState<any[]>([]);
+  const [isLocationsLoading, setIsLocationsLoading] = useState(true);
 
-  const { featuredDestination, otherDestinations } = useMemo(() => {
-    const currentMonth = new Date().getMonth() + 1; // 1-12
-    const inSeason = locations.filter(loc => loc.bestMonths.includes(currentMonth));
-    const pool = inSeason.length > 0 ? inSeason : locations;
-    const featuredIndex = Math.floor(Math.random() * pool.length);
-    const featured = pool[featuredIndex];
-    // Otros 2 destinos (distintos al destacado)
-    const rest = locations.filter(loc => loc.id !== featured.id);
-    const shuffled = rest.sort(() => 0.5 - Math.random()).slice(0, 2);
-    return { featuredDestination: featured, otherDestinations: shuffled };
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const res = await getLocations();
+      if (res.success) {
+        setDbLocations(res.data);
+      }
+      setIsLocationsLoading(false);
+    };
+    fetchLocations();
   }, []);
 
-  if (!isLoaded) return null; // O un componente de carga premium
+  const { featuredDestination, otherDestinations } = useMemo(() => {
+    if (dbLocations.length === 0) return { featuredDestination: null, otherDestinations: [] };
+    
+    const currentMonth = new Date().getMonth() + 1; // 1-12
+    const inSeason = dbLocations.filter(loc => loc.bestMonths.includes(currentMonth));
+    const pool = inSeason.length > 0 ? inSeason : dbLocations;
+    const featuredIndex = Math.floor(Math.random() * pool.length);
+    const featured = pool[featuredIndex];
+    
+    // Otros 2 destinos (distintos al destacado)
+    const rest = dbLocations.filter(loc => loc.id !== featured.id);
+    const shuffled = rest.sort(() => 0.5 - Math.random()).slice(0, 2);
+    return { featuredDestination: featured, otherDestinations: shuffled };
+  }, [dbLocations]);
+
+  if (!isLoaded || isLocationsLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-primary flex flex-col items-center gap-4">
+          <RefreshCw className="animate-spin" size={32} />
+          <div className="text-[10px] uppercase tracking-widest font-bold">Iniciando Red de Exploración...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (isSignedIn) {
     return (
@@ -80,12 +105,12 @@ export default function Home() {
                         <span className="text-[8px] text-slate-400 font-medium">{featuredDestination.region}</span>
                       </div>
                       <span className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 ${
-                        featuredDestination.metadata.difficulty === 'Easy' ? 'text-green-400 bg-green-400/10' :
-                        featuredDestination.metadata.difficulty === 'Moderate' ? 'text-yellow-400 bg-yellow-400/10' :
-                        featuredDestination.metadata.difficulty === 'Challenging' ? 'text-orange-400 bg-orange-400/10' :
+                        featuredDestination.difficulty === 'Easy' ? 'text-green-400 bg-green-400/10' :
+                        featuredDestination.difficulty === 'Moderate' ? 'text-yellow-400 bg-yellow-400/10' :
+                        featuredDestination.difficulty === 'Challenging' ? 'text-orange-400 bg-orange-400/10' :
                         'text-red-400 bg-red-400/10'
                       }`}>
-                        {featuredDestination.metadata.difficulty}
+                        {featuredDestination.difficulty}
                       </span>
                     </div>
                   </div>
@@ -111,12 +136,12 @@ export default function Home() {
                           {dest.name}
                         </h6>
                         <span className={`shrink-0 text-[6px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md ${
-                          dest.metadata.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
-                          dest.metadata.difficulty === 'Moderate' ? 'bg-yellow-500/20 text-yellow-300' :
-                          dest.metadata.difficulty === 'Challenging' ? 'bg-orange-500/20 text-orange-300' :
+                          dest.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
+                          dest.difficulty === 'Moderate' ? 'bg-yellow-500/20 text-yellow-300' :
+                          dest.difficulty === 'Challenging' ? 'bg-orange-500/20 text-orange-300' :
                           'bg-red-500/20 text-red-300'
                         }`}>
-                          {dest.metadata.difficulty}
+                          {dest.difficulty}
                         </span>
                       </div>
                       
@@ -126,7 +151,7 @@ export default function Home() {
                           <span className="text-[8px] text-slate-300 font-bold tracking-tight uppercase">{dest.region}</span>
                         </div>
                         <div className="flex items-center gap-2 text-[7px] text-slate-400 font-bold tracking-widest uppercase">
-                          <span>{dest.metadata.duration}</span>
+                          <span>{dest.duration}</span>
                         </div>
                       </div>
                     </div>
@@ -185,7 +210,7 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 p-px border border-white/5">
-          {locations.map((location) => (
+          {dbLocations.map((location: any) => (
             <LocationCard key={location.id} location={location} />
           ))}
         </div>

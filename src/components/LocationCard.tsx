@@ -7,7 +7,7 @@ import { Location } from '@/data/tourismData';
 
 import { useLanguage } from '@/i18n/LanguageContext';
 
-export default function LocationCard({ location }: { location: Location }) {
+export default function LocationCard({ location }: { location: any }) {
   const { t } = useLanguage();
 
   return (
@@ -28,7 +28,7 @@ export default function LocationCard({ location }: { location: Location }) {
       <div className="p-6 pb-8 flex flex-col flex-1 border-t border-white/5">
         <div className="flex justify-between items-start mb-6">
           <div className="flex flex-col gap-1">
-            {location.tags.slice(0, 2).map(tag => (
+            {location.tags?.slice(0, 2).map((tag: string) => (
               <span key={tag} className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-primary transition-colors">
                 {tag}
               </span>
@@ -44,7 +44,7 @@ export default function LocationCard({ location }: { location: Location }) {
         </h3>
         
         <p className="text-slate-500 font-bold text-[9px] uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
-          <span className="w-6 h-px bg-white/10"></span> {location.metadata.altitude}
+          <span className="w-6 h-px bg-white/10"></span> {location.altitude}
         </p>
         
         <div className="mt-auto pt-5 border-t border-white/5 flex justify-between items-center overflow-hidden">

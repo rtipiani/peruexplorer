@@ -3,8 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import MemberLayout from '@/components/MemberLayout';
-import { locations, calculateDistance, Location } from '@/data/tourismData';
-import { Search, MapPin, Navigation, Compass } from 'lucide-react';
+import { getLocations } from '@/app/actions/locationActions';
+import { calculateDistance } from '@/data/tourismData';
+import { Search, MapPin, Navigation, Compass, RefreshCw } from 'lucide-react';
 
 // Importar el mapa de forma dinámica (no SSR)
 const PeruMap = dynamic(() => import('@/components/PeruMap'), { 
@@ -23,6 +24,20 @@ export default function MapaPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [dbLocations, setDbLocations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Cargar destinos de la base de datos
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const res = await getLocations();
+      if (res.success) {
+        setDbLocations(res.data);
+      }
+      setIsLoading(false);
+    };
+    fetchLocations();
+  }, []);
 
   // Detectar ubicación del usuario al cargar
   useEffect(() => {
@@ -41,14 +56,14 @@ export default function MapaPage() {
 
   // Calcular distancias y filtrar destinos
   const processedLocations = useMemo(() => {
-    let result = locations.map(loc => {
+    let result = dbLocations.map(loc => {
       let distance: number | undefined;
       if (userLocation) {
         distance = calculateDistance(
           userLocation.lat, 
           userLocation.lng, 
-          loc.coordinates.lat, 
-          loc.coordinates.lng
+          loc.latitude, 
+          loc.longitude
         );
       }
       return { ...loc, distance };
@@ -68,7 +83,7 @@ export default function MapaPage() {
     }
 
     return result;
-  }, [userLocation, searchQuery]);
+  }, [userLocation, searchQuery, dbLocations]);
 
   // Manejar el resaltado cuando se busca algo específico y hay solo un resultado
   useEffect(() => {

@@ -117,3 +117,20 @@ model AdCampaign {
   targetType   String?
   business     BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
+
+model TouristLocation {
+  id          String   @id @default(uuid())
+  name        String
+  region      String
+  description String
+  image       String
+  latitude    Float
+  longitude   Float
+  tags        String[] @default([])
+  bestMonths  Int[]    @default([])
+  altitude    String
+  difficulty  String
+  duration    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

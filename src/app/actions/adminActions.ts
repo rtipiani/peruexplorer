@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
@@ -10,11 +10,13 @@ import { revalidatePath } from "next/cache";
  * En producción, Clerk Roles o Metadatos deberían ser usados.
  */
 async function isAdmin() {
-  const { userId } = await auth();
-  console.log("isAdmin check - userId:", userId);
-  if (!userId) return false;
+  const user = await currentUser();
+  if (!user) return false;
   
-  return true; 
+  const email = user.emailAddresses[0]?.emailAddress;
+  console.log("isAdmin check - email:", email);
+  
+  return email === "rtipiani@gmail.com"; 
 }
 
 export async function getAdminDashboardData() {

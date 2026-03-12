@@ -13,7 +13,8 @@ import {
   Building2,
   User,
   XCircle,
-  FileText
+  FileText,
+  MapPin
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -26,6 +27,10 @@ import {
   approveAdCampaign,
   rejectAdCampaign
 } from "@/app/actions/adminActions";
+import { 
+  getAdminLocations, 
+  updateLocationImage 
+} from "@/app/actions/locationActions";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -40,6 +45,8 @@ export default function AdminDashboard() {
   const [isRejecting, setIsRejecting] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState<string | null>(null);
   const [isProcessingCampaign, setIsProcessingCampaign] = useState<string | null>(null);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState<string | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -60,8 +67,28 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchLocations = async () => {
+    try {
+      const res = await getAdminLocations();
+      if (res.success) {
+        setLocations(res.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
   useEffect(() => {
-    if (isLoaded && user) fetchData();
+    if (isLoaded && user) {
+      const email = user.primaryEmailAddress?.emailAddress;
+      if (email !== "rtipiani@gmail.com") {
+        setErrorMsg("Acceso Restringido: Únicamente el Superadministrador puede acceder a esta terminal.");
+        setIsLoading(false);
+        return;
+      }
+      fetchData();
+      fetchLocations();
+    }
   }, [isLoaded, user]);
 
   const handleRejectProfile = async (id: string) => {
@@ -175,6 +202,26 @@ export default function AdminDashboard() {
       toast.error("Error al procesar");
     } finally {
       setIsProcessingCampaign(null);
+    }
+  };
+
+  const handleUpdateImage = async (id: string) => {
+    const newUrl = window.prompt("Introduce la nueva URL de la imagen para este destino:");
+    if (!newUrl || newUrl.trim() === "") return;
+
+    setIsUpdatingLocation(id);
+    try {
+      const res = await updateLocationImage(id, newUrl);
+      if (res.success) {
+        toast.success("Foto actualizada correctamente");
+        fetchLocations();
+      } else {
+        toast.error(res.error || "No se pudo actualizar");
+      }
+    } catch (error) {
+      toast.error("Error al procesar la actualización");
+    } finally {
+      setIsUpdatingLocation(null);
     }
   };
 
@@ -564,6 +611,54 @@ export default function AdminDashboard() {
                   <div className="text-[10px] text-slate-600 italic">Aún no se han registrado recargas validadas.</div>
                 )}
               </div>
+            </div>
+
+            {/* Gestión de Destinos Turísticos */}
+            <div className="space-y-6 pt-12 border-t border-white/5">
+              <div className="flex justify-between items-center">
+                <h2 className="text-sm font-semibold text-white flex items-center gap-3">
+                  <MapPin className="text-primary" /> Gestión de Destinos Turísticos
+                </h2>
+                <div className="text-[10px] text-slate-500 uppercase tracking-widest">{locations.length} Destinos Activos</div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {locations.slice(0, 10).map((loc: any) => (
+                  <div key={loc.id} className="bg-slate-900/40 border border-white/5 p-4 rounded-sm flex gap-4 group hover:border-white/10 transition-all">
+                    <div className="w-20 h-20 bg-black rounded-sm overflow-hidden shrink-0 relative">
+                       <img src={loc.image} alt={loc.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                       <button 
+                         onClick={() => handleUpdateImage(loc.id)}
+                         disabled={isUpdatingLocation === loc.id}
+                         className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                       >
+                         {isUpdatingLocation === loc.id ? <RefreshCw size={14} className="animate-spin text-white" /> : <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Cambiar Foto</span>}
+                       </button>
+                    </div>
+                    <div className="min-w-0 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">{loc.region}</span>
+                          <span className="text-slate-600">&bull;</span>
+                          <span className="text-[9px] text-slate-500 uppercase">{loc.id.slice(0, 8)}...</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white truncate">{loc.name}</h4>
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] text-slate-500">
+                         <span>{loc.altitude}</span>
+                         <span className={`font-bold ${
+                           loc.difficulty === 'Challenging' || loc.difficulty === 'Extreme' ? 'text-orange-500' : 'text-green-500'
+                         }`}>{loc.difficulty}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {locations.length > 10 && (
+                <div className="text-center pt-4">
+                   <p className="text-[9px] text-slate-600 italic">Mostrando 10 de {locations.length} destinos. La gestión completa está habilitada.</p>
+                </div>
+              )}
             </div>
           </div>
 

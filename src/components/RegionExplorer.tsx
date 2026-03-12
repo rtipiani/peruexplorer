@@ -1,21 +1,47 @@
 'use client';
 
-import { useState } from 'react';
-import { locations } from "@/data/tourismData";
+import { getLocations } from '@/app/actions/locationActions';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { MapPin, ArrowRight, Compass, Star, Zap } from 'lucide-react';
+import { MapPin, ArrowRight, Compass, Star, Zap, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 
 export default function RegionExplorer() {
   const { t } = useLanguage();
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
+  const [dbLocations, setDbLocations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const res = await getLocations();
+      if (res.success) {
+        setDbLocations(res.data);
+      }
+      setIsLoading(false);
+    };
+    fetchLocations();
+  }, []);
 
   // Group locations by region
-  const regions = Array.from(new Set(locations.map(loc => loc.region)));
+  const regions = useMemo(() => {
+    return Array.from(new Set(dbLocations.map(loc => loc.region)));
+  }, [dbLocations]);
 
-  const filteredLocations = activeRegion 
-    ? locations.filter(loc => loc.region === activeRegion)
-    : locations;
+  const filteredLocations = useMemo(() => {
+    return activeRegion 
+      ? dbLocations.filter(loc => loc.region === activeRegion)
+      : dbLocations;
+  }, [activeRegion, dbLocations]);
+
+  if (isLoading) {
+    return (
+      <div className="py-32 flex flex-col items-center justify-center border-t border-white/5">
+        <RefreshCw className="animate-spin text-primary mb-4" size={32} />
+        <span className="text-[10px] font-black text-slate-500 tracking-[0.5em] uppercase">Sincronizando Atlas Regional...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
@@ -91,11 +117,11 @@ export default function RegionExplorer() {
                   <div className="flex gap-4">
                      <div className="flex flex-col">
                         <span className="text-slate-600 text-[8px] font-black tracking-widest uppercase">Altitud</span>
-                        <span className="text-white text-[10px] font-bold tracking-tight">{loc.metadata.altitude}</span>
+                        <span className="text-white text-[10px] font-bold tracking-tight">{loc.altitude}</span>
                      </div>
                      <div className="flex flex-col border-l border-white/5 pl-4">
                         <span className="text-slate-600 text-[8px] font-black tracking-widest uppercase">Nivel</span>
-                        <span className="text-white text-[10px] font-bold tracking-tight">{loc.metadata.difficulty}</span>
+                        <span className="text-white text-[10px] font-bold tracking-tight">{loc.difficulty}</span>
                      </div>
                   </div>
 

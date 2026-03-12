@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 interface PeruMapProps {
-  locations: (Location & { distance?: number })[];
+  locations: (any & { distance?: number })[];
   userLocation?: { lat: number; lng: number };
   highlightedLocationId?: string | null;
 }
@@ -17,7 +17,7 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<{ [key: string]: any }>({});
   const userMarkerRef = useRef<any>(null);
-  const [selected, setSelected] = useState<(Location & { distance?: number }) | null>(null);
+  const [selected, setSelected] = useState<(any & { distance?: number }) | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
       // Agregar marcadores para cada destino
       locations.forEach((location) => {
         const marker = L.marker(
-          [location.coordinates.lat, location.coordinates.lng],
+          [location.latitude, location.longitude],
           { icon: createCustomIcon() }
         ).addTo(map);
 
@@ -96,7 +96,7 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
 
         marker.on('click', () => {
           setSelected(location);
-          map.flyTo([location.coordinates.lat, location.coordinates.lng], 9, {
+          map.flyTo([location.latitude, location.longitude], 9, {
             animate: true, duration: 1.2
           });
         });
@@ -181,7 +181,7 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
     const location = locations.find(l => l.id === highlightedLocationId);
     if (location) {
       setSelected(location);
-      mapInstanceRef.current.flyTo([location.coordinates.lat, location.coordinates.lng], 10, {
+      mapInstanceRef.current.flyTo([location.latitude, location.longitude], 10, {
         animate: true, duration: 1.5
       });
       
@@ -260,16 +260,16 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="bg-white/[0.03] p-3 rounded-sm border border-white/5 group/info hover:bg-white/[0.07] transition-colors">
                   <div className="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1 flex items-center gap-1 group-hover/info:text-primary transition-colors"><Mountain size={9} /> Altitud</div>
-                  <div className="text-sm font-black text-white">{selected.metadata.altitude}</div>
+                  <div className="text-sm font-black text-white">{selected.altitude}</div>
                 </div>
                 <div className="bg-white/[0.03] p-3 rounded-sm border border-white/5 group/info hover:bg-white/[0.07] transition-colors">
                   <div className="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1 flex items-center gap-1 group-hover/info:text-primary transition-colors"><Clock size={9} /> Duración</div>
-                  <div className="text-sm font-black text-white">{selected.metadata.duration}</div>
+                  <div className="text-sm font-black text-white">{selected.duration}</div>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-1.5 mb-5">
-                {selected.tags.map(tag => (
+                {selected.tags?.map((tag: string) => (
                   <span key={tag} className="px-2 py-1 bg-white/5 border border-white/5 text-[8px] font-black text-primary tracking-widest uppercase rounded-sm">
                     {tag}
                   </span>
