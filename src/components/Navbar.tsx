@@ -111,7 +111,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 mt-px glass rounded-b-3xl p-6 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
+          <div className="lg:hidden absolute top-full left-0 right-0 mt-px bg-black/90 backdrop-blur-2xl rounded-b-3xl p-8 border-t border-white/10 animate-in slide-in-from-top-2 duration-300 shadow-2xl">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-4">
                 {!isSignedIn ? (
@@ -132,30 +132,38 @@ export default function Navbar() {
 
               <div className="h-px bg-white/5 w-full"></div>
 
-              <div className="flex items-center justify-between">
-                <div className="relative flex items-center gap-2 pl-3 pr-1 py-2 rounded-full bg-white/5 border border-white/10 text-slate-400">
-                  <Globe size={14} className="text-primary/70" />
+              <div className="flex items-center justify-between mt-4">
+                {/* Language Select Mobile */}
+                <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-2 group/lang-m">
+                  <Globe size={14} className="text-primary/70 mr-2" />
                   <select
                     value={locale}
                     onChange={(e) => { setLocale(e.target.value as Locale); setIsMenuOpen(false); }}
-                    className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pr-6 text-slate-300"
+                    className="bg-transparent text-[11px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none text-white pr-4"
                   >
                     {locales.map((l) => (
                       <option key={l.code} value={l.code} className="bg-slate-900 text-white">
-                        {l.label} {l.flag}
+                        {l.label}
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-4 pointer-events-none text-[8px] text-slate-500">▼</div>
+                  <div className="absolute right-3 pointer-events-none text-[8px] text-slate-500">▼</div>
                 </div>
                 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center">
                   {!isSignedIn ? (
                     <SignInButton mode="modal">
-                      <button className="text-[10px] font-black uppercase tracking-widest text-primary">{t('nav.login')}</button>
+                      <button className="px-6 py-2 rounded-full border border-primary/20 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-slate-900 transition-all">
+                        {t('nav.login')}
+                      </button>
                     </SignInButton>
                   ) : (
-                    <UserButton />
+                    <div className="flex items-center gap-4">
+                       <Link href="/perfil" onClick={() => setIsMenuOpen(false)} className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                         {t('nav.profile')}
+                       </Link>
+                       <UserButton />
+                    </div>
                   )}
                 </div>
               </div>
