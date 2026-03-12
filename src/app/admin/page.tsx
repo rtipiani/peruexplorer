@@ -689,7 +689,7 @@ export default function AdminDashboard() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {locations.slice(0, 10).map((loc: any) => (
+                {locations.map((loc: any) => (
                   <div key={loc.id} className="bg-slate-900/40 border border-white/5 p-4 rounded-sm flex gap-4 group hover:border-white/10 transition-all">
                     <div className="w-20 h-20 bg-black rounded-sm overflow-hidden shrink-0 relative">
                        <img src={loc.image} alt={loc.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
@@ -731,11 +731,6 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
-              {locations.length > 10 && (
-                <div className="text-center pt-4">
-                   <p className="text-[9px] text-slate-600 italic">Mostrando 10 de {locations.length} destinos. La gestión completa está habilitada.</p>
-                </div>
-              )}
             </div>
           </div>
 
