@@ -289,15 +289,10 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
             </div>
             <div className="flex flex-col gap-1 grow">
               {/* Línea 1: Nombre y Medalla de Promoción */}
-              <div className="flex items-center justify-between gap-4 w-full pr-2">
+              <div className="flex items-center gap-4 w-full pr-2">
                 <span className="font-bold text-white text-[13px] tracking-tight truncate max-w-[180px] sm:max-w-none">
                   {user.name}
                 </span>
-                {isPromoted && (
-                  <span className="flex items-center justify-center w-6 h-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-pulse" title="Contenido Promocionado">
-                    <Megaphone size={10} strokeWidth={2.5} />
-                  </span>
-                )}
               </div>
               
               {/* Línea 2: Ubicación y Estado Editado */}
@@ -327,14 +322,21 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
             </div>
           </div>
 
-          {/* Menú de Opciones */}
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setMenuOpen(v => !v)}
-              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-full"
-            >
-              <PiDotsThreeBold size={20} />
-            </button>
+          <div className="flex flex-col items-center gap-1">
+            {isPromoted && (
+              <span className="flex items-center justify-center w-6 h-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-pulse mb-1" title="Contenido Promocionado">
+                <Megaphone size={10} strokeWidth={2.5} />
+              </span>
+            )}
+            
+            {/* Menú de Opciones */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(v => !v)}
+                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-full"
+              >
+                <PiDotsThreeBold size={20} />
+              </button>
 
             {menuOpen && (
               <div className="absolute right-0 top-8 z-50 w-40 bg-[#0F172A] border border-white/10 shadow-xl rounded-lg overflow-hidden">
@@ -364,6 +366,7 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
             )}
           </div>
         </div>
+      </div>
 
         {/* --- 2. ÁREA DE IMAGEN (Full Width Instagram Style) --- */}
         {allImages.length > 0 && (
