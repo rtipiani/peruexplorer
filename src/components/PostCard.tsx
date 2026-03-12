@@ -304,7 +304,7 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                   onClick={() => router.push(`/?location=${encodeURIComponent(user.location)}`)}
                   className="flex items-center gap-1 text-[11px] lg:text-[12px] text-slate-300 font-semibold hover:text-primary transition-colors group/loc"
                 >
-                  <PiMapPin size={11} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform lg:size-13" />
+                  <PiMapPin size={14} className="text-primary flex-shrink-0 group-hover/loc:scale-110 transition-transform" />
                   <span className="hover:underline decoration-primary/30 underline-offset-4 truncate max-w-[120px] sm:max-w-none">{user.location}</span>
                 </button>
                 {edited && (
