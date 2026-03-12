@@ -95,34 +95,49 @@ export default function Home() {
              {/* Otros destinos destacados */}
              <div className="space-y-2">
                <span className="text-[7px] font-black text-slate-600 uppercase tracking-[0.3em] px-1 block">También te puede interesar</span>
-               {otherDestinations.map((dest) => (
-                 <Link key={dest.id} href="/destinos" className="group flex flex-col gap-1.5 border border-white/5 hover:border-primary/30 bg-slate-900/30 hover:bg-slate-900/60 p-4 rounded-sm transition-all">
-                   <div className="flex items-start justify-between gap-2">
-                     <h6 className="text-[11px] font-black text-white italic leading-tight tracking-tighter group-hover:text-primary transition-colors">
-                       {dest.name}
-                     </h6>
-                     <span className={`shrink-0 text-[6px] font-bold uppercase tracking-wider px-1 py-0.5 ${
-                       dest.metadata.difficulty === 'Easy' ? 'text-green-400 bg-green-400/10' :
-                       dest.metadata.difficulty === 'Moderate' ? 'text-yellow-400 bg-yellow-400/10' :
-                       dest.metadata.difficulty === 'Challenging' ? 'text-orange-400 bg-orange-400/10' :
-                       'text-red-400 bg-red-400/10'
-                     }`}>
-                       {dest.metadata.difficulty}
-                     </span>
-                   </div>
-                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-1">
-                       <MapPin size={7} className="text-primary/60" />
-                       <span className="text-[8px] text-slate-500">{dest.region}</span>
-                     </div>
-                     <div className="flex items-center gap-2 text-[7px] text-slate-600">
-                       <span>{dest.metadata.altitude}</span>
-                       <span className="text-slate-700">·</span>
-                       <span>{dest.metadata.duration}</span>
-                     </div>
-                   </div>
-                 </Link>
-               ))}
+                {otherDestinations.map((dest) => (
+                  <Link key={dest.id} href={`/destinos/${dest.id}`} className="group relative block w-full aspect-[2/1] border border-white/5 rounded-sm overflow-hidden transition-all duration-500 hover:border-primary/40 shadow-lg">
+                    {/* Background Image with Hover Effect */}
+                    <img 
+                      src={dest.image} 
+                      alt={dest.name}
+                      className="absolute inset-0 w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                    />
+                    
+                    {/* Glassmorphism Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end backdrop-blur-[1px] group-hover:backdrop-blur-none transition-all">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <h6 className="text-[11px] font-black text-white italic leading-tight tracking-tighter drop-shadow-md">
+                          {dest.name}
+                        </h6>
+                        <span className={`shrink-0 text-[6px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md ${
+                          dest.metadata.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
+                          dest.metadata.difficulty === 'Moderate' ? 'bg-yellow-500/20 text-yellow-300' :
+                          dest.metadata.difficulty === 'Challenging' ? 'bg-orange-500/20 text-orange-300' :
+                          'bg-red-500/20 text-red-300'
+                        }`}>
+                          {dest.metadata.difficulty}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 opacity-80">
+                          <MapPin size={7} className="text-primary" />
+                          <span className="text-[8px] text-slate-300 font-bold tracking-tight uppercase">{dest.region}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[7px] text-slate-400 font-bold tracking-widest uppercase">
+                          <span>{dest.metadata.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Decorative selection indicator */}
+                    <div className="absolute top-0 right-0 w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-2 right-2 w-1 h-1 bg-primary rounded-full animate-ping" />
+                      <div className="absolute top-2 right-2 w-1 h-1 bg-primary rounded-full" />
+                    </div>
+                  </Link>
+                ))}
              </div>
 
              {/* Footer Lateral Minimalista */}
