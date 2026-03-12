@@ -380,7 +380,7 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                 src={allImages[0]}
                 alt="Imagen principal del post"
                 fill
-                className="object-contain sm:object-cover"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <ZoomIn size={24} className="text-white drop-shadow-lg" />
