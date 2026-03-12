@@ -17,7 +17,7 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<{ [key: string]: any }>({});
   const userMarkerRef = useRef<any>(null);
-  const [selected, setSelected] = useState<Location | null>(null);
+  const [selected, setSelected] = useState<(Location & { distance?: number }) | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -219,23 +219,35 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
         <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-80 z-[1000] animate-in slide-in-from-left duration-300">
           <div className="bg-black/95 border border-white/10 shadow-2xl shadow-black/50 backdrop-blur-md overflow-hidden rounded-sm">
             {/* Header con imagen */}
-            <div className="relative aspect-video overflow-hidden">
+            <div className="relative aspect-video overflow-hidden group">
               <Image
                 src={selected.image}
                 alt={selected.name}
                 fill
-                className="object-cover grayscale-[0.3]"
+                sizes="(max-width: 768px) 100vw, 320px"
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              
               <button
                 onClick={() => setSelected(null)}
-                className="absolute top-3 right-3 w-7 h-7 bg-black/70 hover:bg-black border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all backdrop-blur-sm"
+                className="absolute top-3 right-3 w-8 h-8 bg-black/40 hover:bg-red-500/80 border border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-md rounded-full z-10"
               >
-                <X size={13} />
+                <X size={14} />
               </button>
-              <div className="absolute bottom-0 left-0 p-4">
-                <div className="text-[8px] font-black text-primary tracking-[0.4em] uppercase mb-1">{selected.region}</div>
-                <h3 className="text-xl font-black text-white tracking-tighter leading-none italic">{selected.name}</h3>
+
+              <div className="absolute bottom-0 left-0 p-5 w-full">
+                <div className="flex items-center justify-between items-end">
+                  <div>
+                    <div className="text-[9px] font-black text-primary tracking-[0.4em] uppercase mb-1">{selected.region}</div>
+                    <h3 className="text-2xl font-black text-white tracking-tighter leading-none italic drop-shadow-lg">{selected.name}</h3>
+                  </div>
+                  {selected.distance && (
+                    <div className="text-[9px] font-black text-white/50 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-sm border border-white/5 whitespace-nowrap">
+                      A {selected.distance.toFixed(1)} KM
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -246,12 +258,12 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-white/5 p-3 rounded-sm border border-white/5">
-                  <div className="text-[8px] font-black text-slate-600 tracking-widest uppercase mb-1 flex items-center gap-1"><Mountain size={9} /> Altitud</div>
+                <div className="bg-white/[0.03] p-3 rounded-sm border border-white/5 group/info hover:bg-white/[0.07] transition-colors">
+                  <div className="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1 flex items-center gap-1 group-hover/info:text-primary transition-colors"><Mountain size={9} /> Altitud</div>
                   <div className="text-sm font-black text-white">{selected.metadata.altitude}</div>
                 </div>
-                <div className="bg-white/5 p-3 rounded-sm border border-white/5">
-                  <div className="text-[8px] font-black text-slate-600 tracking-widest uppercase mb-1 flex items-center gap-1"><Clock size={9} /> Duración</div>
+                <div className="bg-white/[0.03] p-3 rounded-sm border border-white/5 group/info hover:bg-white/[0.07] transition-colors">
+                  <div className="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1 flex items-center gap-1 group-hover/info:text-primary transition-colors"><Clock size={9} /> Duración</div>
                   <div className="text-sm font-black text-white">{selected.metadata.duration}</div>
                 </div>
               </div>
@@ -276,11 +288,17 @@ export default function PeruMap({ locations, userLocation, highlightedLocationId
         </div>
       )}
 
-      {/* Leyenda */}
-      <div className="absolute bottom-16 sm:bottom-8 left-4 z-[1000]">
-        <div className="bg-black/80 border border-white/5 backdrop-blur-md px-4 py-2 sm:py-3 flex items-center gap-3">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary border border-white/20" />
-          <span className="text-[8px] sm:text-[9px] font-black text-slate-500 tracking-widest uppercase">{locations.length} Destinos activos</span>
+      {/* Leyenda reubicada a la derecha para evitar colisión */}
+      <div className="absolute bottom-8 right-16 sm:right-20 z-[1000] animate-in fade-in duration-500">
+        <div className="bg-black/60 border border-white/10 backdrop-blur-xl px-4 py-2 sm:py-3 flex items-center gap-4 rounded-sm shadow-2xl">
+          <div className="relative">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary animate-pulse blur-[1px]" />
+            <div className="absolute inset-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary/40 animate-ping" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-white tracking-widest uppercase">{locations.length} Destinos</span>
+            <span className="text-[7px] font-bold text-slate-500 tracking-widest uppercase">Explorando ahora</span>
+          </div>
         </div>
       </div>
     </div>
