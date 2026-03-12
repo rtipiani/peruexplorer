@@ -55,25 +55,22 @@ export default function Navbar() {
         {/* Desktop Controls */}
         <div className="hidden lg:flex items-center gap-8">
           {/* Language Switcher */}
-          <div className="relative group/lang">
-            <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover/lang:text-white transition-colors">
-              <span className="text-sm">{locales.find(l => l.code === locale)?.flag}</span>
-              <span>{locale}</span>
-            </button>
-            <div className="absolute top-full right-0 mt-4 opacity-0 invisible group-hover/lang:opacity-100 group-hover/lang:visible transition-all duration-300 translate-y-2 group-hover/lang:translate-y-0">
-              <div className="bg-slate-900 border border-white/5 shadow-2xl rounded-sm p-2 flex flex-col min-w-[140px]">
-                {locales.map((l) => (
-                  <button
-                    key={l.code}
-                    onClick={() => setLocale(l.code)}
-                    className={`flex items-center justify-between px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/5 ${locale === l.code ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
-                  >
-                    <span>{l.label}</span>
-                    <span>{l.flag}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Language Switcher Select */}
+          <div className="relative flex items-center gap-2 pl-3 pr-1 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 focus-within:border-primary/50 transition-all group/lang">
+            <Globe size={13} className="text-primary/70 group-hover/lang:text-primary transition-colors" />
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as Locale)}
+              className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pr-4 text-slate-300 hover:text-white transition-colors"
+              style={{ backgroundImage: 'none' }}
+            >
+              {locales.map((l) => (
+                <option key={l.code} value={l.code} className="bg-slate-900 text-white py-2">
+                  {l.code.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3 pointer-events-none text-[8px] text-slate-500">▼</div>
           </div>
 
           <div className="h-4 w-px bg-white/10 hidden sm:block"></div>
@@ -136,16 +133,20 @@ export default function Navbar() {
               <div className="h-px bg-white/5 w-full"></div>
 
               <div className="flex items-center justify-between">
-                <div className="flex gap-4">
-                {locales.map((l) => (
-                  <button
-                    key={l.code}
-                    onClick={() => { setLocale(l.code); setIsMenuOpen(false); }}
-                    className={`text-[10px] font-black uppercase tracking-widest ${locale === l.code ? 'text-primary' : 'text-slate-500'}`}
+                <div className="relative flex items-center gap-2 pl-3 pr-1 py-2 rounded-full bg-white/5 border border-white/10 text-slate-400">
+                  <Globe size={14} className="text-primary/70" />
+                  <select
+                    value={locale}
+                    onChange={(e) => { setLocale(e.target.value as Locale); setIsMenuOpen(false); }}
+                    className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pr-6 text-slate-300"
                   >
-                    {l.code}
-                  </button>
-                ))}
+                    {locales.map((l) => (
+                      <option key={l.code} value={l.code} className="bg-slate-900 text-white">
+                        {l.label} {l.flag}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 pointer-events-none text-[8px] text-slate-500">▼</div>
                 </div>
                 
                 <div className="flex items-center gap-4">
