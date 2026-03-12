@@ -138,16 +138,18 @@ export async function getPosts(locationFilter?: string, userId?: string) {
 
     // 2. Obtener publicaciones (Usamos Prisma ORM por defecto para mayor compatibilidad en Vercel)
     let posts: any[] = [];
+    const sanitizedFilter = (locationFilter && locationFilter.trim() !== "") ? locationFilter.trim() : null;
+
     try {
       posts = await prisma.post.findMany({
-        where: locationFilter ? { location: locationFilter } : {},
+        where: sanitizedFilter ? { location: sanitizedFilter } : {},
         orderBy: { createdAt: 'desc' },
         take: 30
       });
     } catch (sqlError) {
       console.error('Prisma findMany failed, trying raw SQL fallback:', sqlError);
-      posts = locationFilter
-        ? await (prisma as any).$queryRaw`SELECT * FROM "Post" WHERE location = ${locationFilter} ORDER BY "createdAt" DESC LIMIT 30`
+      posts = sanitizedFilter
+        ? await (prisma as any).$queryRaw`SELECT * FROM "Post" WHERE location = ${sanitizedFilter} ORDER BY "createdAt" DESC LIMIT 30`
         : await (prisma as any).$queryRaw`SELECT * FROM "Post" ORDER BY "createdAt" DESC LIMIT 30`;
     }
 
