@@ -112,9 +112,15 @@ export async function getUserNotifications(userId: string) {
 
 export async function getPosts(locationFilter?: string, userId?: string) {
   try {
-    const dbUrl = process.env.DATABASE_URL || "NOT_SET";
-    const dbPrefix = dbUrl.substring(0, 25);
-    console.log(`getPosts diagnostic: Using DB URL starting with: ${dbPrefix}...`);
+    const dbUrl = process.env.DATABASE_URL;
+    let dbStatus = "OK";
+    
+    if (!dbUrl) dbStatus = "MISSING";
+    else if (dbUrl === "undefined") dbStatus = "LITERAL_UNDEFINED_STRING";
+    else if (dbUrl.trim() === "") dbStatus = "EMPTY_STRING";
+
+    const dbPrefix = dbUrl ? dbUrl.substring(0, 25) : "NONE";
+    console.log(`getPosts diagnostic: Status=${dbStatus}, Prefix=${dbPrefix}`);
     
     // 0. Conteo total (ignora filtros) para diagnóstico
     let totalInDb = 0;
@@ -204,7 +210,7 @@ export async function getPosts(locationFilter?: string, userId?: string) {
     return {
       posts: formattedPosts,
       totalInDb,
-      dbPrefix,
+      dbPrefix: dbStatus === "OK" ? dbPrefix : `ERR:${dbStatus}`,
       filterUsed: locationFilter || 'none'
     };
   } catch (error) {
