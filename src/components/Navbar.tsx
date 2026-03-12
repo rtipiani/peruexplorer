@@ -10,16 +10,13 @@ import {
 
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Locale } from '@/i18n/translations';
-import { Menu, X, Globe, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { Menu, X, Globe } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { isSignedIn } = useAuth();
   const { t, locale, setLocale } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
-  const langRef = useRef<HTMLDivElement>(null);
-  const mobileLangRef = useRef<HTMLDivElement>(null);
 
   const locales: { code: Locale; label: string; flag: string }[] = [
     { code: 'es', label: 'Español', flag: '🇪🇸' },
@@ -28,20 +25,6 @@ export default function Navbar() {
     { code: 'zh', label: '中文', flag: '🇨🇳' },
     { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   ];
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(event.target as Node)) {
-        setIsLangOpen(false);
-      }
-      if (mobileLangRef.current && !mobileLangRef.current.contains(event.target as Node)) {
-        // Para móvil, el control de cierre es más sutil
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
@@ -72,47 +55,21 @@ export default function Navbar() {
         {/* Desktop Controls */}
         <div className="hidden lg:flex items-center gap-8">
           {/* Language Switcher */}
-          {/* Custom Language Dropdown (Desktop) */}
-          <div className="relative" ref={langRef}>
-            <button 
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className={`flex items-center gap-3 px-4 py-2 rounded-full border transition-all duration-300 group/lang ${
-                isLangOpen 
-                ? 'bg-white/10 border-primary/40 shadow-[0_0_20px_rgba(166,141,91,0.2)]' 
-                : 'bg-white/5 border-white/10 hover:border-white/20'
-              }`}
+          {/* Professional Language Select (Desktop) */}
+          <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-2 hover:border-primary/30 transition-all focus-within:border-primary/50 group/lang">
+            <Globe size={14} className="text-primary/70 group-hover/lang:text-primary transition-colors" />
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as Locale)}
+              className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none text-white pl-2 pr-6"
             >
-              <Globe size={14} className={`${isLangOpen ? 'text-primary' : 'text-slate-500'} transition-colors`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">
-                {locales.find(l => l.code === locale)?.label}
-              </span>
-              <ChevronDown size={10} className={`text-slate-500 transition-transform duration-300 ${isLangOpen ? 'rotate-180 text-primary' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {isLangOpen && (
-              <div className="absolute top-full right-0 mt-3 w-48 bg-black/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-200 z-[100]">
-                <div className="flex flex-col gap-1">
-                  {locales.map((l) => (
-                    <button
-                      key={l.code}
-                      onClick={() => {
-                        setLocale(l.code);
-                        setIsLangOpen(false);
-                      }}
-                      className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                        locale === l.code 
-                        ? 'bg-primary/10 text-primary' 
-                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                      }`}
-                    >
-                      <span>{l.label}</span>
-                      <span className="text-sm">{l.flag}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+              {locales.map((l) => (
+                <option key={l.code} value={l.code} className="bg-slate-900 text-white">
+                   {l.label}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3 pointer-events-none text-[8px] text-slate-500">▼</div>
           </div>
 
           <div className="h-4 w-px bg-white/10 hidden sm:block"></div>
@@ -174,32 +131,28 @@ export default function Navbar() {
 
               <div className="h-px bg-white/5 w-full"></div>
 
-              <div className="flex flex-col gap-4 mt-2">
-                {/* Custom Language Dropdown (Mobile) */}
-                <div className="flex flex-wrap gap-2">
-                  {locales.map((l) => (
-                    <button
-                      key={l.code}
-                      onClick={() => {
-                        setLocale(l.code);
-                        setIsMenuOpen(false);
-                      }}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${
-                        locale === l.code 
-                        ? 'bg-primary border-primary text-slate-900 shadow-lg shadow-primary/20' 
-                        : 'bg-white/5 border-white/10 text-slate-400'
-                      }`}
-                    >
-                      <span className="text-xs">{l.flag}</span>
-                      {l.label}
-                    </button>
-                  ))}
+              <div className="flex flex-col gap-6 mt-4">
+                {/* Professional Language Select (Mobile) */}
+                <div className="relative flex items-center bg-white/5 border border-white/10 rounded-2xl px-5 py-3 hover:border-primary/30 transition-all focus-within:border-primary/50">
+                  <Globe size={15} className="text-primary/70" />
+                  <select
+                    value={locale}
+                    onChange={(e) => { setLocale(e.target.value as Locale); setIsMenuOpen(false); }}
+                    className="flex-1 bg-transparent text-[11px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none text-white pl-3 pr-6"
+                  >
+                    {locales.map((l) => (
+                      <option key={l.code} value={l.code} className="bg-slate-900 text-white py-4">
+                        {l.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-5 pointer-events-none text-[8px] text-slate-500">▼</div>
                 </div>
                 
-                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                <div className="flex items-center justify-between pt-6 border-t border-white/5">
                   {!isSignedIn ? (
                     <SignInButton mode="modal">
-                      <button className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+                      <button className="flex-1 py-4 rounded-2xl bg-primary text-slate-900 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-primary/20">
                         {t('nav.login')}
                       </button>
                     </SignInButton>
@@ -208,12 +161,12 @@ export default function Navbar() {
                        <Link 
                          href="/perfil" 
                          onClick={() => setIsMenuOpen(false)} 
-                         className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"
+                         className="text-[11px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-3"
                        >
-                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                         <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                          {t('nav.profile')}
                        </Link>
-                       <div className="bg-white/5 p-1.5 rounded-full border border-white/10">
+                       <div className="bg-white/5 p-1 rounded-full border border-white/10">
                          <UserButton />
                        </div>
                     </div>
