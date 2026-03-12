@@ -205,23 +205,64 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleUpdateImage = async (id: string) => {
-    const newUrl = window.prompt("Introduce la nueva URL de la imagen para este destino:");
-    if (!newUrl || newUrl.trim() === "") return;
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Redimensionar si es muy grande (max 1200px)
+          const MAX_WIDTH = 1200;
+          if (width > MAX_WIDTH) {
+            height = (MAX_WIDTH / width) * height;
+            width = MAX_WIDTH;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Comprimir a JPEG con calidad 0.7
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleUpdateImage = async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     setIsUpdatingLocation(id);
+    const loadingToast = toast.loading("Procesando y optimizando imagen...");
+    
     try {
-      const res = await updateLocationImage(id, newUrl);
+      const compressedBase64 = await compressImage(file);
+      const res = await updateLocationImage(id, compressedBase64);
+      
       if (res.success) {
-        toast.success("Foto actualizada correctamente");
+        toast.success("Foto del destino actualizada correctamente", { id: loadingToast });
         fetchLocations();
       } else {
-        toast.error(res.error || "No se pudo actualizar");
+        toast.error(res.error || "No se pudo actualizar la foto", { id: loadingToast });
       }
     } catch (error) {
-      toast.error("Error al procesar la actualización");
+      console.error("Error al procesar la imagen:", error);
+      toast.error("Error crítico al procesar el archivo local", { id: loadingToast });
     } finally {
       setIsUpdatingLocation(null);
+      // Limpiar el input para permitir subir la misma foto si se desea
+      e.target.value = '';
     }
   };
 
@@ -627,13 +668,16 @@ export default function AdminDashboard() {
                   <div key={loc.id} className="bg-slate-900/40 border border-white/5 p-4 rounded-sm flex gap-4 group hover:border-white/10 transition-all">
                     <div className="w-20 h-20 bg-black rounded-sm overflow-hidden shrink-0 relative">
                        <img src={loc.image} alt={loc.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
-                       <button 
-                         onClick={() => handleUpdateImage(loc.id)}
-                         disabled={isUpdatingLocation === loc.id}
-                         className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                       >
-                         {isUpdatingLocation === loc.id ? <RefreshCw size={14} className="animate-spin text-white" /> : <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Cambiar Foto</span>}
-                       </button>
+                       <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                         <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => handleUpdateImage(e, loc.id)}
+                            disabled={isUpdatingLocation === loc.id}
+                         />
+                         {isUpdatingLocation === loc.id ? <RefreshCw size={14} className="animate-spin text-white" /> : <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Subir Foto</span>}
+                       </label>
                     </div>
                     <div className="min-w-0 flex-1 flex flex-col justify-between">
                       <div>
