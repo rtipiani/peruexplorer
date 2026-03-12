@@ -509,9 +509,9 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                   className={`transition-all duration-300 flex flex-col items-center gap-1 lg:gap-2 ${isLiked ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
                 >
                   {isLiked ? (
-                    <PiHeartFill size={16} className="lg:size-18 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]" />
+                    <PiHeartFill size={20} className="drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]" />
                   ) : (
-                    <PiHeart size={16} className="lg:size-18" />
+                    <PiHeart size={20} />
                   )}
                   <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
                     {localLoves.toLocaleString()} <span className="hidden xs:inline">LIKES</span>
@@ -525,7 +525,7 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                   onClick={() => setShowComments(!showComments)}
                   className={`flex flex-col items-center gap-1 lg:gap-2 transition-colors ${showComments ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
                  >
-                   <PiChatCircle size={16} className="lg:size-18" />
+                   <PiChatCircle size={20} />
                    <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
                      {reactions.comments} <span className="hidden xs:inline">COMMENTS</span>
                    </span>
@@ -558,7 +558,7 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                    }}
                    className={`flex flex-col items-center gap-1 lg:gap-2 transition-colors ${shared ? 'text-green-400' : 'text-slate-500 hover:text-white'}`}
                  >
-                   {shared ? <Check size={16} className="lg:size-18" /> : <PiPaperPlaneTilt size={16} className="lg:size-18" />}
+                   {shared ? <Check size={20} /> : <PiPaperPlaneTilt size={20} />}
                    <span className="text-[8px] lg:text-[9px] font-black tracking-widest text-slate-600 uppercase">
                      {shared ? 'COPIADO' : <span className="hidden xs:inline">SHARE</span>}
                    </span>
