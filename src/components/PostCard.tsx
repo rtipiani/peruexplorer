@@ -294,8 +294,8 @@ export default function PostCard({ postId, postUserId, user, content, image, ima
                   {user.name}
                 </span>
                 {isPromoted && (
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 border border-primary/20 rounded-sm text-[8px] font-black text-primary uppercase tracking-widest animate-pulse whitespace-nowrap">
-                    <Megaphone size={8} /> Promocionado
+                  <span className="flex items-center justify-center w-6 h-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-pulse" title="Contenido Promocionado">
+                    <Megaphone size={10} strokeWidth={2.5} />
                   </span>
                 )}
               </div>
